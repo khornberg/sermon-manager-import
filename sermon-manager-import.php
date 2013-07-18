@@ -33,15 +33,15 @@ class SermonManagerImport
      * Location of folder containing mp3s, sermons, or files
      * Default is mp3-to-post
      */
-    protected $folderName = '/sermon-manager-import';
+    protected $folder_name = '/sermon-manager-import';
 
-    protected $uploadsDetails = array();
+    protected $uploads_details = array();
 
     /**
      * Path to the folder containing mp3s, sermons, or files
      *
      */
-    protected $folderPath = "";
+    protected $folder_path = "";
 
     /**
      * Base URL path
@@ -197,9 +197,9 @@ class SermonManagerImport
      */
     public function set_upload_details()
     {
-        $uploadsDetails = wp_upload_dir();
+        $uploads_details = wp_upload_dir();
 
-        $this->uploadsDetails = $uploadsDetails;
+        $this->uploads_details = $uploads_details;
     }
 
     /**
@@ -208,19 +208,18 @@ class SermonManagerImport
      */
     public function set_folder_path()
     {
-        // $uploadsDetails = self::get_upload_details();
+        // $uploads_details = self::get_upload_details();
 
-        $this->folderPath = $this->uploadsDetails['basedir'] . '/' . $this->folderName;
+        $this->folder_path = $this->uploads_details['basedir'] . '/' . $this->folder_name;
     }
 
     /**
      * Sets the base path
      *
-     *
      */
     public function set_base_path()
     {
-        $this->base_path = parse_url( $this->uploadsDetails['baseurl'], PHP_URL_PATH );
+        $this->base_path = parse_url( $this->uploads_details['baseurl'], PHP_URL_PATH );
     }
 
     /**
@@ -244,14 +243,13 @@ class SermonManagerImport
     /**
      * Creates a folder based on the path provided
      *
-     * @param unknown $folderpath
      */
     public function create_folder()
     {
         // check if directory exists and makes it if it isn't
-        if ( !is_dir( $this->folderPath ) ) {
-            if ( !mkdir( $this->folderPath, 0777 ) ) {
-                $this->set_message('Could not make the folder for you to put your files in, please check your permissions. <br />Attempted to create folder at ' . $this->folderPath, 'error');
+        if ( !is_dir( $this->folder_path ) ) {
+            if ( !mkdir( $this->folder_path, 0777 ) ) {
+                $this->set_message('Could not make the folder for you to put your files in, please check your permissions. <br />Attempted to create folder at ' . $this->folder_path, 'error');
             }
         }
     }
@@ -259,21 +257,21 @@ class SermonManagerImport
     /**
      * Gives an array of mp3 files to turn in to posts
      *
-     * @param unknown $folderPath
+     * @param unknown $folder_path
      *
      * @return $array
      *  Returns an array of mp3 file names from the directory created by the plugin
      */
-    public function mp3_array( $folderPath )
+    public function mp3_array( $folder_path )
     {
         // scan folders for files and get id3 info
-        $mp3Files = array_slice( scandir( $folderPath ), 2 ); // cut out the dots..
+        $audio_files = array_slice( scandir( $folder_path ), 2 ); // cut out the dots..
         // filter out all the non mp3 files
-        $mp3Files = array_filter( $mp3Files, array($this, "mp3_only") );
+        $audio_files = array_filter( $audio_files, array($this, "mp3_only") );
         // sort the files
-        sort( $mp3Files );
+        sort( $audio_files );
 
-        return $mp3Files;
+        return $audio_files;
     }
 
     /**
@@ -311,11 +309,11 @@ class SermonManagerImport
     public function audio_to_post()
     {
         // get an array of mp3 files
-        $mp3Files = $this->mp3_array( $this->folderPath );
+        $audio_files = $this->mp3_array( $this->folder_path );
 
         // check of there are files to process
-        if ( count( $mp3Files ) == 0 ) {
-            $this->set_message( 'There are no usable files in ' . $this->folderPath . '.' );
+        if ( count( $audio_files ) == 0 ) {
+            $this->set_message( 'There are no usable files in ' . $this->folder_path . '.' );
 
             return;
         }
@@ -324,55 +322,48 @@ class SermonManagerImport
 
         // loop through all the files and create posts
         if ($post_all) {
-            $limit = count( $mp3Files );
+            $limit = count( $audio_files );
             $sermon_to_post = 0;
         } else {
             $sermon_file_name = $_POST['filename'];
-            $sermon_to_post = array_search( $sermon_file_name, $mp3Files, true );
+            $sermon_to_post = array_search( $sermon_file_name, $audio_files, true );
 
             if ($sermon_to_post === false) {
                 $this->set_message( 'Sermon could not be found in the folder of your uploads. Please check and ensure it is there.', 'error' );
 
                 return;
             } elseif ( !is_numeric( $sermon_to_post ) ) {
-                $this->set_message( 'Key in mp3 files array is not numeric for ' . $mp3Files[$sermon_to_post] . '."', 'error' );
+                $this->set_message( 'Key in mp3 files array is not numeric for ' . $audio_files[$sermon_to_post] . '."', 'error' );
 
                 return;
             }
             $limit = $sermon_to_post + 1;
 
         }
+        
         for ($i=$sermon_to_post; $i < $limit; $i++) {
 
             // Analyze file and store returned data in $ThisFileInfo
-            $filePath = $this->folderPath . '/' . $mp3Files[$i];
+            $file_path = $this->folder_path . '/' . $audio_files[$i];
 
             // TODO This may be redundent could just send via POST; security vunerablity?
             // Sending via post will not write the changes the to the file.
             // May be useful for changing/setting the publish date
-            $audio = $this->get_ID3($filePath);
+            $audio = $this->get_ID3($file_path);
 
-            $date = $this->dates($mp3Files[$i]);
+            $date = $this->dates($audio_files[$i]);
 
             // check if we have a title
             if ($audio['title']) {
 
                 // check if post exists by search for one with the same title
-                $searchArgs = array(
+                $search_args = array(
                     'post_title_like' => $audio['title']
                 );
-                $titleSearchResult = new WP_Query( $searchArgs );
+                $title_search_result = new WP_Query( $search_args );
 
                 // If there are no posts with the title of the mp3 then make the post
-                if ($titleSearchResult->post_count == 0) {
-
-                    /**
-                     * @internal One time use. Used to make all sermons have the same preecher for my local church
-                     */
-                    if($audio['artist'] === "Joseph H. Steele III")
-                        $preacher = 'Rev. Joseph Steele';
-                    else
-                        $preacher = $audio['artist'];
+                if ($title_search_result->post_count == 0) {
 
                     // create basic post with info from ID3 details
                     $my_post = array(
@@ -382,7 +373,7 @@ class SermonManagerImport
                         'post_status' => 'publish',
                         'post_type'   => 'wpfc_sermon',
                         'tax_input'   => array (
-                                            'wpfc_preacher'      => $preacher,
+                                            'wpfc_preacher'      => $audio['artist'],
                                             'wpfc_sermon_series' => $this->get_bible_book($audio['comment']),
                                             'wpfc_sermon_topics' => '',
                                             'wpfc_bible_book'    => $this->get_bible_book($audio['comment']),
@@ -394,7 +385,7 @@ class SermonManagerImport
                     $post_id = wp_insert_post( $my_post );
 
                     // move the file to the right month/date directory in wordpress
-                    $wpFileInfo = wp_upload_bits( basename( $filePath ), null, file_get_contents( $filePath ) );
+                    $wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
 
                     /**
                     * @internal Delete unattached entry in the media library
@@ -415,7 +406,7 @@ class SermonManagerImport
                     if ($query->found_posts == 1) {
                         wp_delete_attachment( $query->post->ID, $force_delete = false );
                     } else {
-                        $filename = pathinfo($mp3Files[$i],PATHINFO_FILENAME);
+                        $filename = pathinfo($audio_files[$i],PATHINFO_FILENAME);
 
                         $args = array(
                         'post_type' => 'attachment',
@@ -432,33 +423,33 @@ class SermonManagerImport
                     }
 
                     // add the mp3 file to the post as an attachment
-                    $wp_filetype = wp_check_filetype( basename( $wpFileInfo['file'] ), null );
+                    $wp_filetype = wp_check_filetype( basename( $wp_file_info['file'] ), null );
                     $attachment = array(
                         'post_mime_type' => $wp_filetype['type'],
                         'post_title'     => $audio['title'],
                         'post_content'   => $audio['title'].' by '.$audio['artist'].' from '.$audio['album'].'. Released: '.$audio['year'].' Comment: '.$audio['comment'].'. Genre: '.$audio['genre'],
                         'post_status'    => 'inherit',
-                        'guid'           => $wpFileInfo['file'],
+                        'guid'           => $wp_file_info['file'],
                         'post_parent'    => $post_id,
                     );
-                    $attach_id = wp_insert_attachment( $attachment, $wpFileInfo['file'], $post_id );
+                    $attach_id = wp_insert_attachment( $attachment, $wp_file_info['file'], $post_id );
                     wp_update_attachment_metadata( $post_id, $attachment );
 
                     // if moved correctly delete the original
-                    if ( empty( $wpFileInfo['error'] ) ) {
-                        unlink( $filePath );
+                    if ( empty( $wp_file_info['error'] ) ) {
+                        unlink( $file_path );
                     }
 
                     // This is for embeded images
                     // you must first include the image.php file
                     // for the function wp_generate_attachment_metadata() to work
                     require_once ABSPATH . 'wp-admin/includes/image.php';
-                    $attach_data = wp_generate_attachment_metadata( $attach_id, $wpFileInfo['file'] );
+                    $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_file_info['file'] );
                     wp_update_attachment_metadata( $attach_id, $attach_data );
 
                     add_post_meta( $post_id, 'sermon_date', $date['unix_date'], $unique = false );
                     add_post_meta( $post_id, 'bible_passage', $audio['comment'], $unique = false );
-                    add_post_meta( $post_id, 'sermon_audio', $wpFileInfo['url'], $unique = false );
+                    add_post_meta( $post_id, 'sermon_audio', $wp_file_info['url'], $unique = false );
 
                     // TODO add support for these values
                     // add_post_meta( $post_id, 'sermon_video', $meta_value, $unique = false );
@@ -562,17 +553,17 @@ class SermonManagerImport
     /**
      * Gets the ID3 info of a file
      *
-     * @param unknown $filePath
+     * @param unknown $file_path
      * String, base path to the mp3 file
      *
      * @return array
      * Keyed array with title, comment and category as keys.
      */
-    public function get_ID3( $filePath )
+    public function get_ID3( $file_path )
     {
         // Initialize getID3 engine
         $get_ID3 = new getID3;
-        $ThisFileInfo = $get_ID3->analyze( $filePath );
+        $ThisFileInfo = $get_ID3->analyze( $file_path );
 
         $imageWidth = "";
         $imageHeight = "";
@@ -603,7 +594,7 @@ class SermonManagerImport
         if ( isset($ThisFileInfo['comments']['picture'][0]) ) {
             $pictureData = $ThisFileInfo['comments']['picture'][0];
             $imageinfo = array();
-            $imagechunkcheck = getid3_lib::GetDataImageSize($pictureData['data'], $imageinfo);
+            //$imagechunkcheck = getid3_lib::GetDataImageSize($pictureData['data'], $imageinfo);
             $imageWidth = "150"; //$imagechunkcheck[0];
             $imageHeight = "150"; //$imagechunkcheck[1];
             $tags['image'] = '<img src="data:'.$pictureData['image_mime'].';base64,'.base64_encode($pictureData['data']).'" width="'.$imageWidth.'" height="'.$imageHeight.'" class="img-polaroid">';
@@ -627,14 +618,13 @@ class SermonManagerImport
             }
         }
 
-        $mp3Files = $this->mp3_array( $this->folderPath );
-
+        $audio_files = $this->mp3_array( $this->folder_path );
         $audio_details = "";
-        $modals ="";
+
         // list files and details
-        foreach ($mp3Files as $file) {
-            $filePath       = $this->folderPath.'/'.$file;
-            $id3Details     = $this->get_ID3( $filePath );
+        foreach ($audio_files as $file) {
+            $file_path       = $this->folder_path.'/'.$file;
+            $id3Details     = $this->get_ID3( $file_path );
             $date           = $this->dates( $file );
             $audio_details .= $this->display_file_details( $id3Details, $file, $date['display_date'] );
         }
@@ -783,17 +773,13 @@ class SermonManagerImport
     **/
     public function action_add_help_menu()
     {
-        // $uploadsDetails = wp_upload_dir();
-        // $folderPath = $uploadsDetails['basedir'] . '/mp3-to-post';
-        // $base_path = parse_url( $uploadsDetails['baseurl'], PHP_URL_PATH );
-
         $sermon_help_upload = '<p>' . __( 'Upload a sermon by clicking the "Upload Sermon" button. To finish the upload, in the media upload box, click "Upload Sermon" or close the dialog box.' ) . '</p>' .
             '<p>' . __( 'The sermons will appear in the sermon list area below this help area.') . '</p>' .
             '<p>' . __( 'Click the "Import" button to post the individual sermon.' ) . '</p>'.
             '<p>' . __( 'Click the "Details" button view the details (ID3 information) about the individual sermon.' ) . '</p>'.
             '<p>' . __( 'Click the "Import all Sermons" button to attempt to post all sermons. <br /> Depending on your server configuration, your server may stop processing before all the sermons are imported. In this case, click "Import all sermons" again until all sermons are imported.' ) . '</p>';
 
-            $sermon_help_technical_details = '<p>' . __( 'Files are uploaded to ' ) . $this->folderPath . ' and moved on posting to'. $this->base_path . '.</p>' .
+            $sermon_help_details = '<p>' . __( 'Files are uploaded to ' ) . $this->folder_path . ' and moved on posting to'. $this->base_path . '.</p>' .
             '<p>' . __( 'This plugin only searchs for mp3 files. By changing the function mp3_only in sermon-manager-import.php, one can search for other file types or modify the mp3_array function.' ) . '</p>';
 
         get_current_screen()->add_help_tab( array(
@@ -806,7 +792,7 @@ class SermonManagerImport
         get_current_screen()->add_help_tab( array(
                 'id'      => 'sermon3',
                 'title'   => __( 'Technical Details' ),
-                'content' => $sermon_help_technical_details,
+                'content' => $sermon_help_details,
             )
         );
     }
@@ -869,7 +855,7 @@ class SermonManagerImport
     public function sermon_upload_custom_upload_dir( $path )
     {
         if ( !empty( $path['error'] ) ) { return $path; } //error; do nothing.
-        $customdir      = $this->folderName;
+        $customdir      = $this->folder_name;
         $path['path']   = str_replace( $path['subdir'], '', $path['path'] ); //remove default subdir (year/month)
         $path['url']    = str_replace( $path['subdir'], '', $path['url'] );
         $path['subdir'] = $customdir;
