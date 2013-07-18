@@ -3,7 +3,7 @@
 
     <p><?php _e('For help using this plugin, click the help menu in the upper right hand corner.'); ?></p>
 
-    <input id="sermon_upload_button" type="button" value="Upload Sermon(s)" class="btn" />
+    <input id="sermon_upload_button" type="button" value="Upload Sermon(s)" class="button" />
     <br />
     <br />
 
@@ -12,7 +12,7 @@
         if($audio_details !== "") {
       ?>
         <form method="post" action="">
-          <input type="submit" class="btn btn-primary" name="create-all-posts" value="<?php _e('Import all sermons') ?>" />
+          <input type="submit" class="button-primary" name="create-all-posts" value="<?php _e('Import all sermons') ?>" />
         </form>
           <h4><?php _e('Sermons are listed by file name and shown with the sermon title.'); ?></h4>
       <?php
@@ -26,5 +26,3 @@
         <?php echo $audio_details; ?>
       </ul>
   </div>
-
-<?php echo $modals; ?>

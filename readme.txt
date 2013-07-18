@@ -43,10 +43,12 @@ This plugin is currently customized for my local church. You should not use it w
 - Add support for video import
 - Add support for other audio formats and id3 versions
 - Test picture upload from ID3 embedded pictures
-- Remove bootstrap dependecy
-- Add PHP Unit tests
 
 == Changelog ==
+
+= 0.2 =
+* Code clean up
+* Removed bootstrap dependency
 
 = 0.1 =
 * Inital Release

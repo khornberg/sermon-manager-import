@@ -169,7 +169,7 @@ class SermonManagerImport
      */
     public function register_admin_styles()
     {
-        wp_enqueue_style( 'bootstrap', plugins_url( 'css/bootstrap.min.css', __FILE__ ) );
+        // wp_enqueue_style( 'bootstrap', plugins_url( 'css/bootstrap.min.css', __FILE__ ) );
         wp_enqueue_style( 'sermon-upload-admin-styles', plugins_url( 'css/admin.css', __FILE__ ) );
         wp_enqueue_style( 'thickbox' );
 
@@ -180,7 +180,7 @@ class SermonManagerImport
      */
     public function register_admin_scripts()
     {
-        wp_enqueue_script( 'bootstrap', plugins_url( 'js/bootstrap.min.js', __FILE__ ) );
+        // wp_enqueue_script( 'bootstrap', plugins_url( 'js/bootstrap.min.js', __FILE__ ) );
         wp_enqueue_script( 'sermon-upload-admin-script', plugins_url( 'js/admin.js', __FILE__ ) );
         wp_enqueue_script( 'media-upload' );
         wp_enqueue_script( 'thickbox' );
@@ -682,23 +682,23 @@ class SermonManagerImport
 
         $info = '<li class="sermon_dl_item">
             <form method="post" action="">
-                <input type="submit" class="btn btn-primary" name="'. $file . '" value="' . __('Import') . '" />
+                <input type="submit" class="button-primary" name="'. $file . '" value="' . __('Import') . '" />
                 <input type="hidden" name="filename" value="' . $file . '">
                 <input type="hidden" name="post" value="Post">
-                <button type="button" id="details-' . $fileUnique . '" class="btn">' . __('Details') . '</button>
+                <button type="button" id="details-' . $fileUnique . '" class="button-secondary">' . __('Details') . '</button>
             <span><b>' . $displayTitle . '</b></span>
             </form>
             <dl id="dl-details-' . $fileUnique . '" class="dl-horizontal">
-                <dt>Speaker:      </dt><dd>' . $displaySpeaker . '</dd>
-                <dt>Bible Text:   </dt><dd>' . $displayText . '</dd>
-                <dt>Publish Date: </dt><dd>' . $display_date .'</dd>
-                <dt>Category:     </dt><dd>' . $displayCategory . '</dd>
-                <dt>Album:        </dt><dd>' . $displayAlbum . '</dd>
-                <dt>Year:         </dt><dd>' . $displayYear . '</dd>
-                <dt>Length:       </dt><dd>' . $displayLength . '</dd>
-                <dt>Bitrate:      </dt><dd>' . $displayBitrate . '</dd>
-                <dt>File name:    </dt><dd>' . $file . '</dd>
-                <dt>Picture:      </dt><dd>' . $displayImage . '</dd>
+                <dt>Speaker:      </dt><dd>&nbsp;' . $displaySpeaker . '</dd>
+                <dt>Bible Text:   </dt><dd>&nbsp;' . $displayText . '</dd>
+                <dt>Publish Date: </dt><dd>&nbsp;' . $display_date .'</dd>
+                <dt>Category:     </dt><dd>&nbsp;' . $displayCategory . '</dd>
+                <dt>Album:        </dt><dd>&nbsp;' . $displayAlbum . '</dd>
+                <dt>Year:         </dt><dd>&nbsp;' . $displayYear . '</dd>
+                <dt>Length:       </dt><dd>&nbsp;' . $displayLength . '</dd>
+                <dt>Bitrate:      </dt><dd>&nbsp;' . $displayBitrate . '</dd>
+                <dt>File name:    </dt><dd>&nbsp;' . $file . '</dd>
+                <dt>Picture:      </dt><dd>&nbsp;' . $displayImage . '</dd>
             </dl>
         </li>';
 

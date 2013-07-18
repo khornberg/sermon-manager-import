@@ -7,7 +7,6 @@ display:none;
 padding:4px
 }
 
-
 .sermon_table_item {
 cursor:pointer;
 }
@@ -33,4 +32,10 @@ padding:4px
 
 .well-small {
 	width: 80%;
+}
+
+dt {
+	float: left;
+	clear: left;
+	font-weight: bold;
 }
