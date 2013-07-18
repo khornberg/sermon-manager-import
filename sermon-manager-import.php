@@ -692,7 +692,7 @@ class SermonManagerImport
 
         $info = '<li class="sermon_dl_item">
             <form method="post" action="">
-                <input type="submit" class="btn btn-primary" name="'. $file . '" value="' . __('Post') . '" />
+                <input type="submit" class="btn btn-primary" name="'. $file . '" value="' . __('Import') . '" />
                 <input type="hidden" name="filename" value="' . $file . '">
                 <input type="hidden" name="post" value="Post">
                 <button type="button" id="details-' . $fileUnique . '" class="btn">' . __('Details') . '</button>
@@ -789,15 +789,12 @@ class SermonManagerImport
 
         $sermon_help_upload = '<p>' . __( 'Upload a sermon by clicking the "Upload Sermon" button. To finish the upload, in the media upload box, click "Upload Sermon" or close the dialog box.' ) . '</p>' .
             '<p>' . __( 'The sermons will appear in the sermon list area below this help area.') . '</p>' .
-            '<p>' . __( 'There are three buttons next to each sermon.' ) . '</p>' .
-            '<p>' . __( 'Click the "Post" button to post the individual sermon.' ) . '</p>'.
+            '<p>' . __( 'Click the "Import" button to post the individual sermon.' ) . '</p>'.
             '<p>' . __( 'Click the "Details" button view the details (ID3 information) about the individual sermon.' ) . '</p>'.
-            '<p>' . __( 'Click the "Edit" button to edit the information about the individual sermon.' ) . '</p>'.
-            '<p>' . __( 'Click the "Post all Sermons" button to post all sermons.' ) . '</p>';
+            '<p>' . __( 'Click the "Import all Sermons" button to attempt to post all sermons. <br /> Depending on your server configuration, your server may stop processing before all the sermons are imported. In this case, click "Import all sermons" again until all sermons are imported.' ) . '</p>';
 
             $sermon_help_technical_details = '<p>' . __( 'Files are uploaded to ' ) . $this->folderPath . ' and moved on posting to'. $this->base_path . '.</p>' .
-            '<p>' . __( 'This plugin only searchs for mp3 files. By changing the function mp3_only in sermon-upload.php, one can have other file types or modify the mp3_array function.' ) . '</p>' .
-            '<p>' . __( 'This plugin is entirely based off of the <a href="http://www.fractured-state.com/2011/09/mp3-to-post-plugin/">mp3-to-post plugin</a> and would not be possible without Paul\'s original efforts. Also a big thanks to James the creator of the <a href="http://www.getid3.org">getID3</a> library.' ) . '</p>';
+            '<p>' . __( 'This plugin only searchs for mp3 files. By changing the function mp3_only in sermon-manager-import.php, one can search for other file types or modify the mp3_array function.' ) . '</p>';
 
         get_current_screen()->add_help_tab( array(
                 'id'      => 'sermon2',

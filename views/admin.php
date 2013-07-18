@@ -12,7 +12,7 @@
         if($audio_details !== "") {
       ?>
         <form method="post" action="">
-          <input type="submit" class="btn btn-primary" name="create-all-posts" value="<?php _e('Post all Sermons') ?>" />
+          <input type="submit" class="btn btn-primary" name="create-all-posts" value="<?php _e('Import all sermons') ?>" />
         </form>
           <h4><?php _e('Sermons are listed by file name and shown with the sermon title.'); ?></h4>
       <?php
