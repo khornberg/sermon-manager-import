@@ -1,39 +1,12 @@
 <?php
-/**
- * Plugin Name: Sermon Manager Import
- * Plugin URI: https://github.com/khornberg/sermon-manager-import
- * Description: Imports sermons into <a href="https://bitbucket.org/wpforchurch/sermon-manager-for-wordpress" target="blank">Sermon Manger for Wordpress</a> using ID3 information.
- * Version: 0.1
- * Author: Kyle Hornberg
- * Author URI: https://github.com/khornberg
- * Author Email:
- * License: GPLv3
- *
- * Copyright 2013
- *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License, version 3, as
- *   published by the Free Software Foundation.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the Free Software
- *   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
-*/
-
 class SermonManagerImport
 {
 
     /**
      * Location of folder containing mp3s, sermons, or files
-     * Default is mp3-to-post
+     * Default is sermon-manager-import
      */
-    protected $folder_name = '/sermon-manager-import';
+    protected $folder_name = get_option('upload_folder');
 
     protected $uploads_details = array();
 
@@ -208,8 +181,6 @@ class SermonManagerImport
      */
     public function set_folder_path()
     {
-        // $uploads_details = self::get_upload_details();
-
         $this->folder_path = $this->uploads_details['basedir'] . '/' . $this->folder_name;
     }
 
@@ -351,7 +322,13 @@ class SermonManagerImport
             // May be useful for changing/setting the publish date
             $audio = $this->get_ID3($file_path);
 
-            $date = $this->dates($audio_files[$i]);
+            //ID3 tag mapping options
+            $options = get_option( 'smi_options' );
+
+            if($options['date'] === '')
+                $date = $this->dates($audio_files[$i]);
+            else
+                $date = $this->dates($audio[$options['date']]);
 
             // check if we have a title
             if ($audio['title']) {
@@ -367,16 +344,16 @@ class SermonManagerImport
 
                     // create basic post with info from ID3 details
                     $my_post = array(
-                        'post_title'  => $audio['title'],
-                        'post_name'   => $audio['title'],
+                        'post_title'  => $audio[$options['sermon_title']],
+                        'post_name'   => $audio[$options['sermon_title']],
                         'post_date'   => $date['file_date'],
                         'post_status' => 'publish',
                         'post_type'   => 'wpfc_sermon',
                         'tax_input'   => array (
-                                            'wpfc_preacher'      => $audio['artist'],
-                                            'wpfc_sermon_series' => $this->get_bible_book($audio['comment']),
-                                            'wpfc_sermon_topics' => '',
-                                            'wpfc_bible_book'    => $this->get_bible_book($audio['comment']),
+                                            'wpfc_preacher'      => $audio[$options['preacher']],
+                                            'wpfc_sermon_series' => ($options['bible_book_series']) ? $this->get_bible_book($audio[$options['bible_passage']]) : $audio[$options['sermon_series']],
+                                            'wpfc_sermon_topics' => $audio[$options['sermon_topics']],
+                                            'wpfc_bible_book'    => $this->get_bible_book($audio[$options['bible_passage']]),
                                             'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
                             )
                     );
@@ -644,9 +621,8 @@ class SermonManagerImport
         $message_count = count( $this->messages );
         $i = 0;
         while ($i < $message_count) {
-            $type = ($this->messages[$i]['type'] == '') ? '' : " alert-" . $this->messages[$i]['type'];
-
-            echo '<div class="alert' . $type . '"><button type="button" class="close" data-dismiss="alert">&times;</button>' . $this->messages[$i]['message'] . '</div>';
+            $type = ($this->messages[$i]['type'] == '') ? '' : $this->messages[$i]['type'];
+            echo '<div class="' . $type . '">' . $this->messages[$i]['message'] . '</div>';
             $i++;
         }
     }
@@ -884,6 +860,8 @@ class SermonManagerImport
 
 } // end class
 
-new SermonManagerImport();
+
+//TODO add user level check
+$sermon_manager_import = new SermonManagerImport();
 
 //sdg
