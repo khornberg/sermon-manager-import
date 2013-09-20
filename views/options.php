@@ -11,15 +11,16 @@ class SermonManagerImportSettings
      */
     private $defaults = array(
         'sermon_title' => 'title',
-        'date' => 'subtitle',
         'preacher' => 'artist',
         'sermon_series' => 'album',
         'sermon_topics' => 'genre',
-        'sermon_description' => 'comments',
+        'sermon_description' => 'comment',
         'bible_passage' => 'composer',
-        'publish_status' => 'publish',
+        'publish_status' => 'draft',
         'bible_book_series' => '0',
-        'upload_folder' => 'sermon-manager-import'
+        'upload_folder' => 'sermon-manager-import',
+        'date' => 'subtitle',
+        'date_format' => 'mmdddyyyy'
     );
 
     /**
@@ -100,17 +101,6 @@ class SermonManagerImportSettings
         );
 
         add_settings_field(
-            'date', 
-            'Date', 
-            array( $this, 'settings_option_callback' ), 
-            'smi-settings', 
-            'setting_section_import',
-            array (
-                'date'
-            )
-        );
-
-        add_settings_field(
             'preacher', 
             'Preacher', 
             array( $this, 'settings_option_callback' ), 
@@ -129,6 +119,17 @@ class SermonManagerImportSettings
             'setting_section_import',
             array (
                 'sermon_series'
+            )
+        );
+
+        add_settings_field(
+            'bible_book_series', 
+            'Bible book series', 
+            array( $this, 'bible_book_series_callback' ), 
+            'smi-settings', 
+            'setting_section_import',
+            array (
+                'bible_book_series'
             )
         );
 
@@ -164,34 +165,39 @@ class SermonManagerImportSettings
                 'bible_passage'
             )
         );
-        
+
         add_settings_field(
-            'publish_status', 
-            'Publish Status', 
-            array( $this, 'publish_status_callback' ), 
+            'date', 
+            'Date', 
+            array( $this, 'settings_option_callback' ), 
             'smi-settings', 
             'setting_section_import',
             array (
-                'publish_status'
+                'date',
+                'Filename'
             )
         );
 
-        add_settings_field(
-            'bible_book_series', 
-            'Bible book series', 
-            array( $this, 'bible_book_series_callback' ), 
-            'smi-settings', 
-            'setting_section_import',
-            array (
-                'bible_book_series'
-            )
-        );
+        /**
+         * Other Import Settings
+         */
 
         add_settings_section(
             'setting_section_other',
             'Import Settings',
             array( $this, 'print_section_info_other' ),
             'smi-settings'
+        );
+
+        add_settings_field(
+            'publish_status', 
+            'Publish Status', 
+            array( $this, 'publish_status_callback' ), 
+            'smi-settings', 
+            'setting_section_other',
+            array (
+                'publish_status'
+            )
         );
 
         add_settings_field(
@@ -202,6 +208,17 @@ class SermonManagerImportSettings
             'setting_section_other',
             array (
                 'upload_folder'
+            )
+        );
+
+        add_settings_field(
+            'date_format', 
+            'Date Format', 
+            array( $this, 'date_format_callback' ), 
+            'smi-settings', 
+            'setting_section_other',
+            array (
+                'date_format'
             )
         );
     
@@ -235,7 +252,7 @@ class SermonManagerImportSettings
      */
     public function print_section_info_other()
     {
-        print 'Other settings';
+        print 'Optional settings';
     }
 
     /** 
@@ -259,6 +276,7 @@ class SermonManagerImportSettings
     public function settings_option_callback($args)
     {
         $selected = esc_attr( $this->options[$args[0]]);
+        $date_option = (isset($args[1])) ? $args[1] : 'Not used';
 
         $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">
             <option value="title"' . selected($selected, 'title', false) . '>Title</option>
@@ -266,11 +284,11 @@ class SermonManagerImportSettings
             <option value="artist"' . selected($selected, 'artist', false) . '>Artist</option>
             <option value="album"' . selected($selected, 'album', false) . '>Album</option>
             <option value="genre"' . selected($selected, 'genre', false) . '>Genre</option>
-            <option value="comments"' . selected($selected, 'comments', false) . '>Comments</option>
+            <option value="comment"' . selected($selected, 'comment', false) . '>Comment</option>
             <option value="composer"' . selected($selected, 'composer', false) . '>Composer</option>
             <option value="picture"' . selected($selected, 'picture', false) . '>Attached Picture</option>
             <option value="year"' . selected($selected, 'year', false) . '>Year</option>
-            <option value=""' . selected($selected, '', false) . '>Not set</option>
+            <option value=""' . selected($selected, '', false) . '>'. $date_option . '</option>
         </select>';
 
         echo $options;
@@ -281,13 +299,31 @@ class SermonManagerImportSettings
      */
     public function bible_book_series_callback($args)
     {
-        echo '<input type="checkbox" id="'.$args[0].'" name="smi_options['.$args[0].']"  value="1" '. checked( 1, esc_attr( $this->options[$args[0]]), false ) . '" /> Uses the bible book from the bible passage as the series name.';
+        echo '<input type="checkbox" id="'.$args[0].'" name="smi_options['.$args[0].']"  value="1" '. checked( 1, esc_attr( $this->options[$args[0]]), false ) . '" /> Use the bible book from the bible passage as the series.';
     }
 
     public function upload_folder_callback($args)
     {
         $uploads_details = wp_upload_dir();
         echo '<input type="text" id="'.$args[0].'" name="smi_options['.$args[0].']" value="'.$this->options[$args[0]].'" class="regular-text"> <br />Your upload path is '.$uploads_details['basedir'].'/'.$this->options[$args[0]];
+    }
+
+    /** 
+     * Get the settings option array for date formats
+     */
+    public function date_format_callback($args)
+    {
+        $selected = esc_attr( $this->options[$args[0]]);
+
+        $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">
+            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>YYYYMMDD</option>
+            <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>DDMMYYYY</option>
+            <option value="DMYYYY"' . selected($selected, 'DMYYYY', false) . '>DMYYYY</option>
+            <option value="DMMDMYYY"' . selected($selected, 'MMDDYYYY', false) . '>MMDDYYYY</option>
+            <option value="MDYYYY"' . selected($selected, 'MDYYYY', false) . '>MDYYYY</option>
+        </select>';
+
+        echo $options;
     }
 
 }

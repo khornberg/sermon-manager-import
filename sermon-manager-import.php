@@ -6,7 +6,7 @@ class SermonManagerImport
      * Location of folder containing mp3s, sermons, or files
      * Default is sermon-manager-import
      */
-    protected $folder_name = get_option('upload_folder');
+    protected $folder_name = '';
 
     protected $uploads_details = array();
 
@@ -181,7 +181,7 @@ class SermonManagerImport
      */
     public function set_folder_path()
     {
-        $this->folder_path = $this->uploads_details['basedir'] . '/' . $this->folder_name;
+        $this->folder_path = $this->uploads_details['basedir'] . '/' . get_option('upload_folder');
     }
 
     /**
@@ -331,11 +331,11 @@ class SermonManagerImport
                 $date = $this->dates($audio[$options['date']]);
 
             // check if we have a title
-            if ($audio['title']) {
+            if ($audio[$options['sermon_title']]) {
 
                 // check if post exists by search for one with the same title
                 $search_args = array(
-                    'post_title_like' => $audio['title']
+                    'post_title_like' => $audio[$options['sermon_title']]
                 );
                 $title_search_result = new WP_Query( $search_args );
 
@@ -347,7 +347,7 @@ class SermonManagerImport
                         'post_title'  => $audio[$options['sermon_title']],
                         'post_name'   => $audio[$options['sermon_title']],
                         'post_date'   => $date['file_date'],
-                        'post_status' => 'publish',
+                        'post_status' => $options['publish_status'],
                         'post_type'   => 'wpfc_sermon',
                         'tax_input'   => array (
                                             'wpfc_preacher'      => $audio[$options['preacher']],
@@ -376,7 +376,7 @@ class SermonManagerImport
                     $args = array(
                         'post_type' => 'attachment',
                         'post_status' => 'inherit',
-                        's' => $audio['title'],
+                        's' => $audio[$options['sermon_title']],
                         );
                     $query = new WP_Query( $args );
 
@@ -399,12 +399,12 @@ class SermonManagerImport
                         }
                     }
 
-                    // add the mp3 file to the post as an attachment
+                    // add the file to the sermon/post as an attachment in the media library
                     $wp_filetype = wp_check_filetype( basename( $wp_file_info['file'] ), null );
                     $attachment = array(
                         'post_mime_type' => $wp_filetype['type'],
-                        'post_title'     => $audio['title'],
-                        'post_content'   => $audio['title'].' by '.$audio['artist'].' from '.$audio['album'].'. Released: '.$audio['year'].' Comment: '.$audio['comment'].'. Genre: '.$audio['genre'],
+                        'post_title'     => $audio[$options['sermon_title']],
+                        'post_content'   => $audio[$options['sermon_title']].' by '.$audio[$options['preacher']].' from '.$audio[$options['sermon_series']].'. Released: '.$audio['year'],
                         'post_status'    => 'inherit',
                         'guid'           => $wp_file_info['file'],
                         'post_parent'    => $post_id,
@@ -425,13 +425,13 @@ class SermonManagerImport
                     wp_update_attachment_metadata( $attach_id, $attach_data );
 
                     add_post_meta( $post_id, 'sermon_date', $date['unix_date'], $unique = false );
-                    add_post_meta( $post_id, 'bible_passage', $audio['comment'], $unique = false );
+                    add_post_meta( $post_id, 'bible_passage', $audio[$options['bible_passage']], $unique = false );
                     add_post_meta( $post_id, 'sermon_audio', $wp_file_info['url'], $unique = false );
 
                     // TODO add support for these values
                     // add_post_meta( $post_id, 'sermon_video', $meta_value, $unique = false );
                     // add_post_meta( $post_id, 'sermon_notes', $meta_value, $unique = false );
-                    // add_post_meta( $post_id, 'sermon_description', $meta_value, $unique = false );
+                    add_post_meta( $post_id, 'sermon_description', $audio[$options['sermon_description']], $unique = false );
 
                     // TODO add support for featured image
 
@@ -442,9 +442,9 @@ class SermonManagerImport
                     // $updated_post['post_status'] = 'published';
                     // wp_update_post( $updated_post );
 
-                    $this->set_message( 'Post created: ' . $audio['title'], 'success');
+                    $this->set_message( 'Post created: ' . $audio[$options['sermon_title']], 'success');
                 } else {
-                    $this->set_message( 'Post already exists: ' . $audio['title'] );
+                    $this->set_message( 'Post already exists: ' . $audio[$options['sermon_title']] );
                 }
             } else {
                 if (!$title) {
@@ -465,50 +465,61 @@ class SermonManagerImport
      */
     public function dates( $filename )
     {
+        //Find date function
+        require_once plugin_dir_path( __FILE__ ) . 'function.find_date.php';
+
+        $file_date = find_date( $filename );
+
+        if($file_date) {
+$display_date    = date( 'F j, Y', strtotime($file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00'));
+$publish_date = $file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00';
+$unix_date    = strtotime($publish_date);
+$meridiem     = $file_date['meridiem'];
+
         //Get the date from the file name minus the extention
-        $file_length = strlen( pathinfo($filename, PATHINFO_FILENAME) );
+        // $file_length = strlen( pathinfo($filename, PATHINFO_FILENAME) );
 
-        if ($file_length >= 8 && is_numeric($file_length)) {
-            $file_date = substr( $filename, 0, 8 );
+        // if ($file_length >= 8 && is_numeric($file_length)) {
+        //     $file_date = substr( $filename, 0, 8 );
 
-            // Set publish_date for word press post
-            // Set unix_date for other plugins and as a common date
-            if ( is_numeric( $file_date ) ) {
-                $file_year    = substr( $file_date, 0, 4 );
-                $file_month   = substr( $file_date, 4, 2 );
-                $file_days    = substr( $file_date, 6, 2 );
-                $file_date    = $file_year . '-' . $file_month . '-' . $file_days . ' ' . '06:00:00';
-                $publish_date = $file_date;
-                $unix_date    = strtotime($publish_date);
-                // Set meridiem
-                $file_meridiem = pathinfo($filename, PATHINFO_FILENAME);
-                if ( preg_match("/(a|A)$|(am|AM)$|morning/", $file_meridiem) )
-                    $meridiem = 'am';
-                elseif ( preg_match("/(p|P)$|(pm|PM)$|evening/", $file_meridiem) )
-                    $meridiem = 'pm';
-                else
-                    $meridiem = '';
-            } else {
-                // No date could be determined from the file name
-                // Set publish_date, unix_date, and meridiem to the current time
-                $publish_date = date( 'Y-m-d', time() );
-                $unix_date    = date( 'U', time() );
-                $meridiem     = date( 'a', time() );
-                // Set file_date to the current time to determine the display_date below
-                $file_date    = time();
-            }
+        //     // Set publish_date for word press post
+        //     // Set unix_date for other plugins and as a common date
+        //     if ( is_numeric( $file_date ) ) {
+        //         $file_year    = substr( $file_date, 0, 4 );
+        //         $file_month   = substr( $file_date, 4, 2 );
+        //         $file_days    = substr( $file_date, 6, 2 );
+        //         $file_date    = $file_year . '-' . $file_month . '-' . $file_days . ' ' . '06:00:00';
+        //         $publish_date = $file_date;
+        //         $unix_date    = strtotime($publish_date);
+        //         // Set meridiem
+        //         $file_meridiem = pathinfo($filename, PATHINFO_FILENAME);
+        //         if ( preg_match("/(a|A)$|(am|AM)$|morning/", $file_meridiem) )
+        //             $meridiem = 'am';
+        //         elseif ( preg_match("/(p|P)$|(pm|PM)$|evening/", $file_meridiem) )
+        //             $meridiem = 'pm';
+        //         else
+        //             $meridiem = '';
+        //     } else {
+        //         // No date could be determined from the file name
+        //         // Set publish_date, unix_date, and meridiem to the current time
+        //         $publish_date = date( 'Y-m-d', time() );
+        //         $unix_date    = date( 'U', time() );
+        //         $meridiem     = date( 'a', time() );
+        //         // Set file_date to the current time to determine the display_date below
+        //         $file_date    = time();
+        //     }
 
-            // Set display_date for admin page and modal
-            $file_time = strtotime( $file_date );
+        //     // Set display_date for admin page and modal
+        //     $file_time = strtotime( $file_date );
 
-            if ($file_time) {
-                $display_date = date( 'F j, Y', $file_time );
-            } else {
-                // No date could be determined from the file name
-                // Set display_date to the current time
-                $display_date = date( 'F j, Y', time()) ;
-                $this->set_message( 'The publish date for ' . $filename . ' could not be determined. It will be published ' . $display_date . ' if you do not change it.' );
-            }
+        //     if ($file_time) {
+        //         $display_date = date( 'F j, Y', $file_time );
+        //     } else {
+        //         // No date could be determined from the file name
+        //         // Set display_date to the current time
+        //         $display_date = date( 'F j, Y', time()) ;
+        //         $this->set_message( 'The publish date for ' . $filename . ' could not be determined. It will be published ' . $display_date . ' if you do not change it.' );
+        //     }
         } else {
             // No date could be determined from the file name
             // Sets all dates to the current time
@@ -519,12 +530,14 @@ class SermonManagerImport
             $this->set_message( 'The publish date for ' . $filename . ' could not be determined. It will be published ' . $display_date . ' if you do not change it.' );
         }
 
-        return array(
+        $return_array = array(
             'display_date' => $display_date,
             'file_date'    => $publish_date,
             'unix_date'    => $unix_date,
             'meridiem'     => $meridiem,
             );
+var_dump($return_array);
+        return $return_array;
     }
 
     /**

@@ -20,6 +20,7 @@
       ?>
           <p class="well well-small">No sermons to post.</p>
       <?php
+       var_dump($this->folder_path);
         }
       ?>
       <ul class="unstyled">
