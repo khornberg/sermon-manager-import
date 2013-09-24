@@ -221,6 +221,17 @@ class SermonManagerImportSettings
                 'date_format'
             )
         );
+
+        add_settings_field(
+            'date_year_split', 
+            'Two Digit Year', 
+            array( $this, 'date_year_split_callback' ), 
+            'smi-settings', 
+            'setting_section_other',
+            array (
+                'date_year_split'
+            )
+        );
     
     }
 
@@ -316,16 +327,25 @@ class SermonManagerImportSettings
         $selected = esc_attr( $this->options[$args[0]]);
 
         $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">
-            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>YYYYMMDD</option>
-            <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>DDMMYYYY</option>
-            <option value="DMYYYY"' . selected($selected, 'DMYYYY', false) . '>DMYYYY</option>
-            <option value="DMMDMYYY"' . selected($selected, 'MMDDYYYY', false) . '>MMDDYYYY</option>
-            <option value="MDYYYY"' . selected($selected, 'MDYYYY', false) . '>MDYYYY</option>
+            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>Year-Month-Day-Merideim</option>
+            <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>Day-Month-Year-Meridiem</option>
         </select>';
+
+        $options = $options + '<p>Single digit days, months, full English month names, and two digit years are supported. Just make sure they are in the order you specify.<br />The meridiem specifies morning or evening and can be any of the following (case insensitive): a, am, morning, p, pm, evening.';
+
+        // <option value="DMMDMYYY"' . selected($selected, 'MMDDYYYY', false) . '>MMDDYYYY</option>
+            // <option value="MDYYYY"' . selected($selected, 'MDYYYY', false) . '>MDYYYY</option>
 
         echo $options;
     }
 
+    /**
+     * Get the setting for the two digit year split
+     */
+    public function date_year_split_callback($args)
+    {
+        echo '<input type="text" max="99" min="0" id="'.$args[0].'" name="smi_options['.$args[0].']" value="'.$this->options[$args[0]].'" > <br />Year entered determines if a two digit year is from the 1900s or 2000s. The default is 50, so years 50-99 are 1950-1999 and 00-49 are 2000-2049.';
+    }
 }
 
 if( is_admin() )

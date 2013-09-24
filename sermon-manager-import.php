@@ -463,18 +463,22 @@ class SermonManagerImport
      * @return array
      * Keyed array with display_date, file_date, unix_date, meridiem
      */
-    public function dates( $filename )
+    public function dates( $date_string )
     {
         //Find date function
-        require_once plugin_dir_path( __FILE__ ) . 'function.find_date.php';
+        require_once plugin_dir_path( __FILE__ ) . 'FindDate.php';
 
-        $file_date = find_date( $filename );
+        $FindDate = new FindDate;
+        $FindDate->format =  get_option('date_format');
+        $FindDate->two_digit_year_split = get_option('date_year_split');
+
+        $file_date = $FindDate->find( $date_string );
 
         if($file_date) {
-$display_date    = date( 'F j, Y', strtotime($file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00'));
-$publish_date = $file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00';
-$unix_date    = strtotime($publish_date);
-$meridiem     = $file_date['meridiem'];
+            $display_date    = date( 'F j, Y', strtotime($file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00'));
+            $publish_date = $file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00';
+            $unix_date    = strtotime($publish_date);
+            $meridiem     = $file_date['meridiem'];
 
         //Get the date from the file name minus the extention
         // $file_length = strlen( pathinfo($filename, PATHINFO_FILENAME) );
@@ -527,7 +531,7 @@ $meridiem     = $file_date['meridiem'];
             $publish_date = date( 'Y-m-d', time() );
             $unix_date    = date( 'U', time() );
             $meridiem     = date( 'a', time() );
-            $this->set_message( 'The publish date for ' . $filename . ' could not be determined. It will be published ' . $display_date . ' if you do not change it.' );
+            $this->set_message( 'The publish date could not be determined. The sermon will be published ' . $display_date . ' if you do not change it.' );
         }
 
         $return_array = array(
@@ -798,7 +802,7 @@ var_dump($return_array);
             add_submenu_page( 'edit.php?post_type=wpfc_sermon', 'Import Sermons', 'Import Sermons', 'upload_files', 'sermon-manager-import', array ($this, 'display_plugin_page') );
         // }
         // else {
-        //     add_action( '_admin_notices', 'activate_notice' );
+            add_action( '_admin_notices', 'activate_notice' );
         // }
     }
 
