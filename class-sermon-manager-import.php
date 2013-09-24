@@ -2,22 +2,20 @@
 /**
  * Plugin Name.
  *
- * @package   Plugin_Name
- * @author    Your Name <email@example.com>
- * @license   GPL-2.0+
- * @link      http://example.com
- * @copyright 2013 Your Name or Company Name
+ * @package   Sermon Manager Import
+ * @author    Kyle Hornberg
+ * @license   GPLv3
+ * @link      https://github.com/khornberg/sermon-manager-import
+ * @copyright 2013 Kyle Hornberg
  */
 
 /**
  * Plugin class.
  *
- * TODO: Rename this class to a proper name for your plugin.
- *
- * @package Plugin_Name
- * @author  Your Name <email@example.com>
+ * @package SermonManagerImport
+ * @author  Kyle Hornberg
  */
-class Plugin_Name {
+class SermonManagerImport {
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -72,11 +70,11 @@ class Plugin_Name {
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
 
 		// Add the options page and menu item.
-		// add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
 		// Add an action link pointing to the options page. TODO: Rename "plugin-name.php" to the name your plugin
-		// $plugin_basename = plugin_basename( plugin_dir_path( __FILE__ ) . 'plugin-name.php' );
-		// add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
+		$plugin_basename = plugin_basename( plugin_dir_path( __FILE__ ) . 'sermon-manager-import.php' );
+		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -207,19 +205,23 @@ class Plugin_Name {
 	private static function single_activate() {
 		// TODO: Define activation functionality here
 		// 
-		$html = '<div class="updated">';
+		$html = '';
 
-		if (!class_exists('getID3'))
-			$html .= '<p>The get_ID3 library must be available.</p>';
+		if ( ! class_exists( 'getID3' ) ) {
+			if (strpos(get_bloginfo('version'), '3.6') !== false) {	
+				require( ABSPATH . WPINC . '/ID3/getid3.php' );
+			}
+			else {
+				require_once 'assets/getid3/getid3.php';
+			}
+		}
 
-		if (!is_plugin_active( 'sermon-manger-development/sermons.php' ))
-			$html .= '<p><a href="http://www.wpforchurch.com/products/sermon-manager-for-wordpress/">Sermon Manager for Wordpress</a> must be activated for this plugin to work.</p>';
-		
-		$html .= '</div>';
+		if ( ! is_plugin_active( 'sermon-manager-for-wordpress/sermons.php' ) ) {
+			$html .= '<div class="updated"><p><a href="http://www.wpforchurch.com/products/sermon-manager-for-wordpress/">Sermon Manager for Wordpress</a> must be activated for Sermon Manager Import plugin to work.</p></div>';
+			echo $html;
+		}
 
-		echo $html;
 
-		return;
 	}
 
 	/**
@@ -310,17 +312,10 @@ class Plugin_Name {
 	 */
 	public function add_plugin_admin_menu() {
 
-		/*
-		 * TODO:
-		 *
-		 * Change 'Page Title' to the title of your plugin admin page
-		 * Change 'Menu Text' to the text for menu item for the plugin settings page
-		 * Change 'manage_options' to the capability you see fit (http://codex.wordpress.org/Roles_and_Capabilities)
-		 */
 		$this->plugin_screen_hook_suffix = add_plugins_page(
-			__( 'Page Title', $this->plugin_slug ),
-			__( 'Menu Text', $this->plugin_slug ),
-			'manage_options',
+			__( 'Sermon Manager Import', $this->plugin_slug ),
+			__( 'Import Settings', $this->plugin_slug ),
+			'upload_files',
 			$this->plugin_slug,
 			array( $this, 'display_plugin_admin_page' )
 		);
