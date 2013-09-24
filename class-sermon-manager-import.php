@@ -312,9 +312,10 @@ class SermonManagerImport {
 	 */
 	public function add_plugin_admin_menu() {
 
+		//TODO Testing change to SM page
 		$this->plugin_screen_hook_suffix = add_plugins_page(
 			__( 'Sermon Manager Import', $this->plugin_slug ),
-			__( 'Import Settings', $this->plugin_slug ),
+			__( 'Import Sermons', $this->plugin_slug ),
 			'upload_files',
 			$this->plugin_slug,
 			array( $this, 'display_plugin_admin_page' )
@@ -329,6 +330,7 @@ class SermonManagerImport {
 	 */
 	public function display_plugin_admin_page() {
 		include_once( 'views/admin.php' );
+
 	}
 
 	/**
@@ -338,9 +340,10 @@ class SermonManagerImport {
 	 */
 	public function add_action_links( $links ) {
 
+		//TODO change to SM page
 		return array_merge(
 			array(
-				'settings' => '<a href="' . admin_url( 'plugins.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
+				'settings' => '<a href="' . admin_url( 'plugins.php?page=' . $this->plugin_slug .'-options' ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
 			),
 			$links
 		);

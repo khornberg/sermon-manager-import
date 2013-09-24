@@ -36,14 +36,14 @@
  *
 */
 
-// Add Options Page
-// require_once plugin_dir_path( __FILE__ ) . '/views/options.php';
+
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+require_once plugin_dir_path( __FILE__ ) . 'views/options.php';
 require_once( plugin_dir_path( __FILE__ ) . 'class-sermon-manager-import.php' );
 
 // Register hooks that are fired when the plugin is activated or deactivated.

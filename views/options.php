@@ -20,7 +20,8 @@ class SermonManagerImportSettings
         'bible_book_series' => '0',
         'upload_folder' => 'sermon-manager-import',
         'date' => 'subtitle',
-        'date_format' => 'mmdddyyyy'
+        'date_format' => 'DDMMYYYY',
+        'date_year_split' => 50
     );
 
     /**
@@ -37,13 +38,22 @@ class SermonManagerImportSettings
      */
     public function add_options_page()
     {
-        // This page will be under "Settings"
-        add_submenu_page(
-            'edit.php?post_type=wpfc_sermon', 
+        // add_submenu_page(
+        //     // 'edit.php?post_type=wpfc_sermon', 
+        //     'plugins.php?page=sermon-manager-import-options',
+        //     __('Sermon Manager Import Settings', 'sermon-manager-import'), 
+        //     __('Import Settings', 'sermon-manager-import'), 
+        //     'manage_options', 
+        //     __FILE__, 
+        //     array( $this, 'create_admin_page')
+        // );
+
+        //Testing
+        add_plugins_page(
             __('Sermon Manager Import Settings', 'sermon-manager-import'), 
             __('Import Settings', 'sermon-manager-import'), 
             'manage_options', 
-            __FILE__, 
+            'sermon-manager-import-options', 
             array( $this, 'create_admin_page')
         );
     }
@@ -324,14 +334,16 @@ class SermonManagerImportSettings
      */
     public function date_format_callback($args)
     {
+        // echo $this->options[$args[0]];
+
         $selected = esc_attr( $this->options[$args[0]]);
 
         $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">
-            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>Year-Month-Day-Merideim</option>
-            <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>Day-Month-Year-Meridiem</option>
+            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>Year Month Day Merideim</option>
+            <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>Day Month Year Meridiem</option>
         </select>';
 
-        $options = $options + '<p>Single digit days, months, full English month names, and two digit years are supported. Just make sure they are in the order you specify.<br />The meridiem specifies morning or evening and can be any of the following (case insensitive): a, am, morning, p, pm, evening.';
+        $options .= '<p>Single digit days, months, full English month names, and two digit years are supported. Just make sure they are in the order you specify.<br />The meridiem specifies morning or evening and can be any of the following (case insensitive): a, am, morning, p, pm, evening.';
 
         // <option value="DMMDMYYY"' . selected($selected, 'MMDDYYYY', false) . '>MMDDYYYY</option>
             // <option value="MDYYYY"' . selected($selected, 'MDYYYY', false) . '>MDYYYY</option>
