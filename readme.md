@@ -25,9 +25,7 @@ This plugin does not have the ability to add media already in the WordPress medi
 If you want to contribute go to [Github](github.com), fork, and send a pull request. Issues and comments are welcome as well.
 
 ### **WARNING**
-This plugin is currently customized for my local church. You should not use it without first modifying the code.
-1. Remove the if/else statement at `#372` in the `sermon-manager-import.php` file.  
-2. Modify the array at `#378` to match the ID3 fields of your sermons.  
+Uploads are customized 
 
 ## Screenshots
 
@@ -35,17 +33,20 @@ This plugin is currently customized for my local church. You should not use it w
 [Screenshot Import](Screenshot2.png)
 
 ### TODO
-- Prevent activation if sermon manager not activated
 - Activation, deactivation, uninstall functions
-- Add support to publish as draft
-- Code refactor
-- Add GUI to allow customized bind of ID3 tags to Sermon Manager fields (e.g. comment to bible passage, date from the file name, etc.)
 - Add support for video import
 - Add support for other audio formats and id3 versions
 - Test picture upload from ID3 embedded pictures
-- Remove bootstrap dependecy
 
 ### Changelog
+
+#### 0.2
+* Warns if sermon manager not activated, will not import if sermon manager deactivated  
+* Added support to publish as draft  
+* Code refactor  
+* Added GUI to allow customized bind of ID3 tags to Sermon Manager fields (e.g. comment to bible passage, date from the file name, etc.)  
+* Removed bootstrap dependecy  
+
 #### 0.1
 * Inital Release
 

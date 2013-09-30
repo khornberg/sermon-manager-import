@@ -373,7 +373,7 @@ class SermonManagerImport {
 	 * @since    0.2.0
 	 */
 	public function add_plugin_admin_menu() {
-
+		
 		if ( ! is_plugin_active( 'sermon-manager-for-wordpress/sermons.php' ) ) {
 			$this->plugin_screen_hook_suffix = add_plugins_page(
 				__( 'Sermon Manager Import', $this->plugin_slug ),
@@ -404,9 +404,9 @@ class SermonManagerImport {
         $screen = get_current_screen();
 		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
 			if ( isset( $_POST ) ) {
-	            if ( isset($_POST['post']) || isset($_POST['create-all-posts']) ) {
+	            if ( isset( $_POST['post'] ) || isset( $_POST['create-all-posts'] ) && is_plugin_active( 'sermon-manager-for-wordpress/sermons.php' ) ) {
 	                $this->audio_to_post();
-	            } elseif ( isset($_POST['filename']) ) {
+	            } elseif ( isset( $_POST['filename'] ) ) {
 	                $this->write_tags();
 	            }
 	        }
