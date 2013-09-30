@@ -3,6 +3,7 @@
  * Find Date in a String
  *
  * @author   Etienne Tremel
+ * @internal  Modified by Kyle Hornberg
  * @license  http://creativecommons.org/licenses/by/3.0/ CC by 3.0
  * @link     http://www.etiennetremel.net
  *
@@ -38,7 +39,7 @@ class FindDate {
 	public $meridiem             = "";
 
 	public $two_digit_year_split = 50;
-	public $format               = ""; //get_option('date_format');
+	public $format               = ""; 
 
 	public function find( $string ) {
 		$this->month                = "";
@@ -87,7 +88,7 @@ class FindDate {
 	            case 'MDYYYY':
 	            	break;
 	        }
-var_dump($matches);
+
 		//Match month name:
 		preg_match( '/(' . implode( '|', $this->month_names ) . ')/i', $string, $matches_month_word );
 		if ( $matches_month_word ) {
@@ -123,7 +124,7 @@ var_dump($matches);
 			$this->month = '0' . $this->month;
 
 		//Check year:
-		if ( 2 == strlen( $this->year ) && $this->year > $this->two_digit_year_split )
+		if ( 2 == strlen( $this->year ) && $this->year >= $this->two_digit_year_split )
 			$this->year = '19' . $this->year;
 		else if ( 2 == strlen( $this->year ) && $this->year < $this->two_digit_year_split )
 			$this->year = '20' . $this->year;
@@ -145,4 +146,3 @@ var_dump($matches);
 			return $date;
 	}
 }
-?>

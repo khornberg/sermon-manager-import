@@ -393,11 +393,11 @@ class SermonManagerImport {
 	public function display_plugin_admin_page() {
 		if ( isset( $_POST ) ) {
             if ( isset($_POST['post']) || isset($_POST['create-all-posts']) ) {
-                // $this->audio_to_post();
-                $this->set_message('Posted!');
+                $this->audio_to_post();
+                // $this->set_message('Posted!');
             } elseif ( isset($_POST['filename']) ) {
-                // $this->write_tags();
-                $this->set_message('Written!!');
+                $this->write_tags();
+                // $this->set_message('Written!!');
             }
         }
 
@@ -748,7 +748,7 @@ class SermonManagerImport {
             'unix_date'    => $unix_date,
             'meridiem'     => $meridiem,
             );
-var_dump($return_array);
+
         return $return_array;
     }
 
@@ -972,12 +972,10 @@ var_dump($return_array);
     public function action_replace_thickbox_text()
     {
     	global $pagenow;
-		if ( $_GET['page'] == $this->plugin_screen_hook_suffix )  {
-	        if ('media-upload.php' == $pagenow || 'async-upload.php' == $pagenow) {
-	            // Now we'll replace the 'Insert into Post Button' inside Thickbox
-	            add_filter( 'gettext', array( $this, 'filter_replace_thickbox_text' ), 1, 3 );
-	        }
-	    }
+        if ('media-upload.php' == $pagenow || 'async-upload.php' == $pagenow) {
+            // Now we'll replace the 'Insert into Post Button' inside Thickbox
+            add_filter( 'gettext', array( $this, 'filter_replace_thickbox_text' ), 1, 3 );
+        }
     }
 
     /**
@@ -1043,16 +1041,18 @@ var_dump($return_array);
 
     public function filter_sermon_upload_pre_upload( $file )
     {
-    	if ( isset( $_GET['page'] ) && $_GET['page'] == $this->plugin_screen_hook_suffix ) {
+    	if ( $file['type'] == 'audio/mp3' ) {
         	add_filter( 'upload_dir', array( $this , 'sermon_upload_custom_upload_dir' ) );
-        }
+    	}
 
         return $file;
     }
 
     public function filter_sermon_upload_post_upload( $fileinfo )
     {
-        remove_filter( 'upload_dir', array( $this , 'sermon_upload_custom_upload_dir' ) );
+    	if ( $file['type'] == 'audio/mp3' ) {
+	        remove_filter( 'upload_dir', array( $this , 'sermon_upload_custom_upload_dir' ) );
+	    }
 
         return $fileinfo;
     }
@@ -1069,8 +1069,6 @@ var_dump($return_array);
         if ( !wp_mkdir_p( $path['path'] ) ) {
             return array( 'error' => sprintf( __( 'Unable to create directory %s. Is the parent directory writable by the server?' ), $path['path'] ) );
         }
-
-        d($customdir);
 
         return $path;
     }
