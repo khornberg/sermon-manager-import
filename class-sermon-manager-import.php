@@ -374,15 +374,25 @@ class SermonManagerImport {
 	 */
 	public function add_plugin_admin_menu() {
 
-		//TODO Testing change to SM page
-		$this->plugin_screen_hook_suffix = add_plugins_page(
-			__( 'Sermon Manager Import', $this->plugin_slug ),
-			__( 'Import Sermons', $this->plugin_slug ),
-			'upload_files',
-			$this->plugin_slug,
-			array( $this, 'display_plugin_admin_page' )
-		);
-
+		if ( ! is_plugin_active( 'sermon-manager-for-wordpress/sermons.php' ) ) {
+			$this->plugin_screen_hook_suffix = add_plugins_page(
+				__( 'Sermon Manager Import', $this->plugin_slug ),
+				__( 'Import Sermons', $this->plugin_slug ),
+				'upload_files',
+				$this->plugin_slug,
+				array( $this, 'display_plugin_admin_page' )
+			);
+		}
+		else {
+            $this->plugin_screen_hook_suffix = add_submenu_page( 
+            	'edit.php?post_type=wpfc_sermon', 
+            	__( 'Import Sermons', $this->plugin_slug ),
+            	__( 'Import Sermons', $this->plugin_slug ),
+            	'upload_files', 
+            	$this->plugin_slug, 
+            	array( $this, 'display_plugin_admin_page') 
+            );
+		}
 	}
 
 	/**
@@ -391,28 +401,29 @@ class SermonManagerImport {
 	 * @since    0.2.0
 	 */
 	public function display_plugin_admin_page() {
-		if ( isset( $_POST ) ) {
-            if ( isset($_POST['post']) || isset($_POST['create-all-posts']) ) {
-                $this->audio_to_post();
-                // $this->set_message('Posted!');
-            } elseif ( isset($_POST['filename']) ) {
-                $this->write_tags();
-                // $this->set_message('Written!!');
-            }
-        }
+        $screen = get_current_screen();
+		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
+			if ( isset( $_POST ) ) {
+	            if ( isset($_POST['post']) || isset($_POST['create-all-posts']) ) {
+	                $this->audio_to_post();
+	            } elseif ( isset($_POST['filename']) ) {
+	                $this->write_tags();
+	            }
+	        }
 
-        $audio_files = $this->mp3_array( $this->folder_path );
-        $audio_details = "";
+	        $audio_files = $this->mp3_array( $this->folder_path );
+	        $audio_details = "";
 
-        // list files and details
-        foreach ($audio_files as $file) {
-            $file_path      = $this->folder_path.'/'.$file;
-            $id3Details     = $this->get_ID3( $file_path );
-            $date           = $this->dates( $file );
-            $audio_details .= $this->display_file_details( $id3Details, $file, $date['display_date'] );
-        }
+	        // list files and details
+	        foreach ($audio_files as $file) {
+	            $file_path      = $this->folder_path.'/'.$file;
+	            $id3Details     = $this->get_ID3( $file_path );
+	            $date           = $this->dates( $file );
+	            $audio_details .= $this->display_file_details( $id3Details, $file, $date['display_date'] );
+	        }
 
-		include_once( 'views/admin.php' );
+	        include_once( 'views/admin.php' );
+	    }
 	}
 
 	/*--------------------------------------------*

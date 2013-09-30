@@ -38,24 +38,28 @@ class SermonManagerImportSettings
      */
     public function add_options_page()
     {
-        // add_submenu_page(
-        //     // 'edit.php?post_type=wpfc_sermon', 
-        //     'plugins.php?page=sermon-manager-import-options',
-        //     __('Sermon Manager Import Settings', 'sermon-manager-import'), 
-        //     __('Import Settings', 'sermon-manager-import'), 
-        //     'manage_options', 
-        //     __FILE__, 
-        //     array( $this, 'create_admin_page')
-        // );
+        if ( ! is_plugin_active( 'sermon-manager-for-wordpress/sermons.php' ) ) {
+            add_plugins_page(
+                __('Sermon Manager Import Settings', 'sermon-manager-import'), 
+                __('Import Settings', 'sermon-manager-import'), 
+                'manage_options', 
+                'sermon-manager-import-options', 
+                array( $this, 'create_admin_page')
+            );
+        }
+        else {
+            add_submenu_page( 
+                'edit.php?post_type=wpfc_sermon', 
+                __( 'Import Options', 'sermon-manager-import' ),
+                __( 'Import Options', 'sermon-manager-import' ),
+                'manage_options', 
+                'sermon-manager-import-options', 
+                array( $this, 'create_admin_page') 
+                );
+        }
 
         //Testing
-        add_plugins_page(
-            __('Sermon Manager Import Settings', 'sermon-manager-import'), 
-            __('Import Settings', 'sermon-manager-import'), 
-            'manage_options', 
-            'sermon-manager-import-options', 
-            array( $this, 'create_admin_page')
-        );
+        
     }
 
     /**
