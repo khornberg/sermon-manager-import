@@ -7,23 +7,30 @@
     <br />
     <br />
 
-
       <?php
-        if($audio_details !== "") {
+        if ( isset( $audio_details ) && $audio_details != null) {
       ?>
-        <form method="post" action="">
+        <form method="post" action="<?php the_permalink(); ?>">
           <input type="submit" class="button-primary" name="create-all-posts" value="<?php _e('Import all sermons') ?>" />
         </form>
           <h4><?php _e('Sermons are listed by file name and shown with the sermon title.'); ?></h4>
       <?php
         } else {
       ?>
-          <p class="well well-small">No sermons to post.</p>
+          <p class="">No sermons to post.</p>
       <?php
-       var_dump($this->folder_path);
         }
       ?>
-      <ul class="unstyled">
-        <?php echo $audio_details; ?>
+      <ul class="">
+        <?php if ( isset( $audio_details ) ) { echo $audio_details; } ?>
       </ul>
   </div>
+
+  <?php
+       d($this->folder_path); 
+       d($this->base_path);
+       d(get_option('smi_options'));
+       d($this->messages);
+       d($_POST);
+       d(wp_upload_dir());
+       ?>
