@@ -10,11 +10,11 @@ Imports sermons into Sermon Manager using ID3 information.
 
 ## Description
 
-Imports sermons into [Sermon Manager for Wordpress](https://bitbucket.org/wpforchurch/sermon-manager-for-wordpress) using ID3 information. Only MP3 files are currently supported. Files can either be uploaded via the WordPress uploader or put on the server through another method. The plugin adds files to the `wp-content/uploads/sermon-manager-import` folder. Files added through the WordPress uploader will show up in the media library as unattached. *WARNING* when posting a file like this the unattached entry will be deleted. Normally, this is not an issue and is only a temporary entry. However, if you manually attached the uploaded media to a post, it will not work after importing the sermon. This is an unlikely senario.
+Imports sermons into [Sermon Manager for Wordpress](https://bitbucket.org/wpforchurch/sermon-manager-for-wordpress) using ID3 information. Only MP3 files are currently supported. Files can either be uploaded via the WordPress uploader or put on the server through another method. The plugin adds files to the `wp-content/uploads/sermon-manager-import` folder by default. A different folder can be specified. The plugin only searches the base folder! Files added through the WordPress uploader will show up in the media library as unattached. *WARNING* when posting a file that is an unattached entry, the unattached entry will be deleted. Normally, this is not an issue and is only a temporary entry. However, if you manually attached the uploaded media to a post, it will not work after importing the sermon. This is an unlikely senario.
 
-When the sermon is posted, the file is moved to the uploads folder using the organization method selected in the WordPress settings. Sermons are posted in the `publish` status.
+When the sermon is posted, the file is moved to the uploads folder using the organization method selected in the WordPress settings. Sermons can be posted in the `publish` or `draft` status.
 
-This plugin does not have the ability to add media already in the WordPress media library to sermon manager. To do this, one would manually (ssh, ftp, etc) move the files to the sermon-manager-import folder. Then continue as normal. *WARNING* this will delete the previous entry in the media library. If you have the media attached to another post, that old post will not work.
+This plugin does not have the ability to add media already in the WordPress media library to sermon manager. To do this, one would manually (ssh, ftp, etc) move the files to the specified import folder. Then continue as normal. *WARNING* this will delete the previous entry in the media library. If you have the media attached to another post, the old post will not work.
 
 ## Installation
 
@@ -25,7 +25,7 @@ This plugin does not have the ability to add media already in the WordPress medi
 If you want to contribute go to [Github](github.com), fork, and send a pull request. Issues and comments are welcome as well.
 
 ### **WARNING**
-Uploads are customized 
+All uploads identified as `audio/mp3` (usually only MP3 files) are uploaded to the import folder specified. All other files will be uploaded to the normal upload directory.
 
 ## Screenshots
 
@@ -33,10 +33,10 @@ Uploads are customized
 [Screenshot Import](Screenshot2.png)
 
 ### TODO
-- Activation, deactivation, uninstall functions
-- Add support for video import
-- Add support for other audio formats and id3 versions
 - Test picture upload from ID3 embedded pictures
+- Test support for other audio formats and id3 versions
+- Background reload
+- Background import
 
 ### Changelog
 
