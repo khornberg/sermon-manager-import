@@ -41,9 +41,10 @@ All uploads identified as `audio/mp3` (usually only MP3 files) are uploaded to t
 ### Changelog
 
 #### 0.2
+* Many small improvements
 * Warns if sermon manager not activated, will not import if the sermon manager plugin is not activated 
 * Added support to publish as draft  
-* Code refactor  
+* Code refactor
 * Added GUI to allow customized bind of ID3 tags to Sermon Manager fields (e.g. comment to bible passage, date from the file name, etc.)  
 * Removed bootstrap dependecy  
 

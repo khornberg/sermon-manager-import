@@ -139,7 +139,6 @@ class SermonManagerImport {
 		add_filter( 'wp_handle_upload_prefilter', array( $this, 'filter_sermon_upload_pre_upload' ) );
 		add_filter( 'wp_handle_upload', array( $this, 'filter_sermon_upload_post_upload' ) );
 
-		   
 		// Filter posts
 		add_filter( 'posts_where', array( $this, 'filter_title_like_posts_where') , 10, 2 );
 
@@ -638,7 +637,7 @@ class SermonManagerImport {
 				);
 				$title_search_result = new WP_Query( $search_args );
 
-				// If there are no posts with the title of the mp3 then make the post
+				// If there are no posts with the title of the sermon then make the sermon
 				if ($title_search_result->post_count == 0) {
 
 					// create basic post with info from ID3 details
@@ -716,7 +715,7 @@ class SermonManagerImport {
 						unlink( $file_path );
 					}
 
-					// This is for embeded images
+					// This is for embeded images and attached files
 					// you must first include the image.php file
 					// for the function wp_generate_attachment_metadata() to work
 					require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -727,14 +726,16 @@ class SermonManagerImport {
 					add_post_meta( $post_id, 'bible_passage', $audio[$this->options['bible_passage']], $unique = false );
 					add_post_meta( $post_id, 'sermon_audio', $wp_file_info['url'], $unique = false );
 
-					// TODO add support for these values
+					// TODO might add support for these values
 					// add_post_meta( $post_id, 'sermon_video', $meta_value, $unique = false );
 					// add_post_meta( $post_id, 'sermon_notes', $meta_value, $unique = false );
 					add_post_meta( $post_id, 'sermon_description', $audio[$this->options['sermon_description']], $unique = false );
 
 					// TODO add support for featured image
+					// add_post_meta( $post_id, '_thumbnail_id', $thumbnail_id)
 
-					$this->set_message( 'Sermon created: ' . $audio[$this->options['sermon_title']]);
+					$link = ($this->options['publish_status'] === 'draft') ? 'post.php?post=' . $post_id . '&action=edit' : get_permalink( $post_id );
+					$this->set_message( 'Sermon created: <a href="' . $link . '">' . $audio[$this->options['sermon_title']] . '</a>');
 				} else {
 					$this->set_message( 'Sermon already exists: ' . $audio[$this->options['sermon_title']] );
 				}
