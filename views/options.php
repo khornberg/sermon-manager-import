@@ -347,7 +347,7 @@ class SermonManagerImportSettings
             <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>Day Month Year Meridiem</option>
         </select>';
 
-        $options .= '<p>Single digit days, months, full English month names, and two digit years are supported. Just make sure they are in the order you specify.<br />The meridiem specifies morning or evening and can be any of the following (case insensitive): a, am, morning, p, pm, evening.';
+        $options .= '<p>Single digit days and months, full english month names, and two digit years are supported. Just make sure they are in the order you specify.<br />The meridiem specifies morning or evening to determine a service and can be any of the following (case insensitive): a, am, morning, p, pm, evening.';
 
         // <option value="DMMDMYYY"' . selected($selected, 'MMDDYYYY', false) . '>MMDDYYYY</option>
             // <option value="MDYYYY"' . selected($selected, 'MDYYYY', false) . '>MDYYYY</option>

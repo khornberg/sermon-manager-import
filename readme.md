@@ -41,7 +41,7 @@ Uploads are customized
 ### Changelog
 
 #### 0.2
-* Warns if sermon manager not activated, will not import if sermon manager deactivated  
+* Warns if sermon manager not activated, will not import if the sermon manager plugin is not activated 
 * Added support to publish as draft  
 * Code refactor  
 * Added GUI to allow customized bind of ID3 tags to Sermon Manager fields (e.g. comment to bible passage, date from the file name, etc.)  
