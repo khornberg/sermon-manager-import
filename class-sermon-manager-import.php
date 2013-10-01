@@ -110,6 +110,7 @@ class SermonManagerImport {
 
 		// Set paths to folders
 		self::set_paths();
+		self::create_folder();
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
@@ -120,7 +121,6 @@ class SermonManagerImport {
 		// Add the options page and menu item.
 		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
-		// Add an action link pointing to the options page. TODO: Rename "plugin-name.php" to the name your plugin
 		$plugin_basename = plugin_basename( plugin_dir_path( __FILE__ ) . 'sermon-manager-import.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
@@ -143,10 +143,10 @@ class SermonManagerImport {
 		// Filter posts
 		add_filter( 'posts_where', array( $this, 'filter_title_like_posts_where') , 10, 2 );
 
-		// Adds help menu to plugin
+		// Add help menu to plugin
 		add_action( 'current_screen', array( $this, 'action_add_help_menu' ) );
 
-
+		// Activation notices
 		add_action( 'admin_notices', array( $this, 'activate' ) );
 
 		// Does not work on admin_notices. Seems to be hooking too early
@@ -264,8 +264,6 @@ class SermonManagerImport {
 	 * @since    0.2.0
 	 */
 	private static function single_activate() {
-		// TODO: Define activation functionality here
-		 
 		$html = '';
 
 		if ( ! class_exists( 'getID3' ) ) {
@@ -439,7 +437,7 @@ class SermonManagerImport {
 		// check if directory exists and makes it if it isn't
 		if ( !is_dir( $this->folder_path ) ) {
 			if ( !mkdir( $this->folder_path, 0777 ) ) {
-				$this->set_message('Could not make the folder for you to put your files in, please check your permissions. <br />Attempted to create folder at ' . $this->folder_path, 'error');
+				$this->set_message('<p>Could not make the folder for you to put your files in, please check your permissions. Attempted to create folder at <br /><b>' . $this->folder_path . '</b></p>', 'error');
 			}
 		}
 	}
