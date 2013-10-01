@@ -873,7 +873,20 @@ class SermonManagerImport {
 			$value = sanitize_text_field( $ThisFileInfo['comments_html']['comment'][0] );
 			$tags['comment'] = $value;
 		}
-//TODO add subtitle get id3v2[tit3][0][data] in v2 and id3v2[tsst][0][data] in v4
+
+		// see en.wikipedia.org/wiki/ID3
+		// subtitle tit3 in id3v2 and tsst in id3v4
+		if (! empty( $ThisFileInfo['id3v2']['TIT3'][0]['data'] ) ) {
+			$tags['subtitle'] = sanitize_text_field( $ThisFileInfo['id3v2']['TIT3'][0]['data'] );
+		}
+		else if ( ! empty( $ThisFileInfo['id3v2']['TSST'][0]['data'] ) ) {
+			$tags['subtitle'] = sanitize_text_field( $ThisFileInfo['id3v2']['TSST'][0]['data'] );
+		}
+		else {
+			$tags['subtitle'] = '';
+		}
+
+		$tags['composer'] = empty( $ThisFileInfo['id3v2']['TCOM'][0]['data'] ) ? '' : sanitize_text_field( $ThisFileInfo['id3v2']['TCOM'][0]['data'] );
 		$tags['bitrate'] = sanitize_text_field( $ThisFileInfo['bitrate'] );
 		$tags['length'] = sanitize_text_field( $ThisFileInfo['playtime_string'] );
 
