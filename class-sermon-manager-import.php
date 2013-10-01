@@ -416,7 +416,7 @@ class SermonManagerImport {
 				$id3            = $this->get_ID3( $file_path );
 				$date_string    = ($this->options['date'] === '') ? $file_name : $id3[$this->options['date']] ;
 				$date           = $this->get_dates( $date_string );
-				$audio_details .= $this->display_file_details( $id3, $file_name, $date['display_date'] );
+				$audio_details .= $this->display_file_details( $id3, $file_name, $date );
 			}
 
 			include_once( 'views/admin.php' );
@@ -469,32 +469,52 @@ class SermonManagerImport {
 	 * Returns a string formated for display
 	 *
 	 */
-	public function display_file_details( $id3, $file, $display_date )
+	public function display_file_details( $id3, $file, $date )
 	{
-		$displayTitle    = empty($id3['title']) ? $file : $id3['title'];
-		$displaySpeaker  = empty($id3['artist']) ? '&nbsp;' : $id3['artist'];
-		$displayText     = empty($id3['comment']) ? '&nbsp;' : $id3['comment'];
-		$displayCategory = empty($id3['genre']) ? '&nbsp;' : $id3['genre'];
-		$displayAlbum    = empty($id3['album']) ? '&nbsp;' : $id3['album'];
-		$displayYear     = empty($id3['year']) ? '&nbsp;' : $id3['year'];
-		$displayLength   = empty($id3['length']) ? '&nbsp;' : $id3['length'];
-		$displayBitrate  = empty($id3['bitrate']) ? '&nbsp;' : $id3['bitrate'];
-		$displayImage    = empty($id3['image']) ? 'No image embded' : $id3['image'];
-		$fileUnique      = str_replace('.', '_', str_replace(' ', '_', $file));
+		$displayImport  = ($this->options['publish_status'] === 'draft') ? __('Import as draft') : __('Import');
+
+		$displaySermonTitle       = empty($id3[$this->options['sermon_title']]) ? '&nbsp;' : $id3[$this->options['sermon_title']];
+		$displayPreacher          = empty($id3[$this->options['preacher']]) ? '&nbsp;' : $id3[$this->options['preacher']];
+		$displaySermonSeries      = ($this->options['bible_book_series']) ? $this->get_bible_book($id3[$this->options['bible_passage']]) : $id3[$this->options['sermon_series']];
+		$displaySermonTopics      = empty($id3[$this->options['sermon_topics']]) ? '&nbsp;' : $id3[$this->options['sermon_topics']];
+		$displaySermonDescription = empty($id3[$this->options['sermon_description']]) ? '&nbsp;' : $id3[$this->options['sermon_description']];
+		$displayBiblePassage      = empty($id3[$this->options['bible_passage']]) ? '&nbsp;' : $id3[$this->options['bible_passage']];
+		$displayBibleBook         = $this->get_bible_book($id3[$this->options['bible_passage']]);
+		$displayService           = $this->get_service_type($date['meridiem']);
+
+		$displayTitle   = empty($id3['title']) ? $file : $id3['title'];
+		$displayArtist  = empty($id3['artist']) ? '&nbsp;' : $id3['artist'];
+		$displayComment = empty($id3['comment']) ? '&nbsp;' : $id3['comment'];
+		$displayGenre   = empty($id3['genre']) ? '&nbsp;' : $id3['genre'];
+		$displayAlbum   = empty($id3['album']) ? '&nbsp;' : $id3['album'];
+		$displayYear    = empty($id3['year']) ? '&nbsp;' : $id3['year'];
+		$displayLength  = empty($id3['length']) ? '&nbsp;' : $id3['length'];
+		$displayBitrate = empty($id3['bitrate']) ? '&nbsp;' : $id3['bitrate'];
+		$displayImage   = empty($id3['image']) ? 'No image embded' : $id3['image'];
+		$fileUnique     = str_replace('.', '_', str_replace(' ', '_', $file));
 
 		$info = '<li class="sermon_dl_item">
 			<form method="post" action="">
-				<input type="submit" class="button-primary" name="'. $file . '" value="' . __('Import') . '" />
+				<input type="submit" class="button-primary" name="'. $file . '" value="' . $displayImport . '" />
 				<input type="hidden" name="filename" value="' . $file . '">
 				<input type="hidden" name="post" value="Post">
 				<button type="button" id="details-' . $fileUnique . '" class="button-secondary">' . __('Details') . '</button>
 			<span><b>' . $displayTitle . '</b></span>
 			</form>
 			<dl id="dl-details-' . $fileUnique . '" class="dl-horizontal">
-				<dt>Speaker:      </dt><dd>&nbsp;' . $displaySpeaker . '</dd>
-				<dt>Bible Text:   </dt><dd>&nbsp;' . $displayText . '</dd>
-				<dt>Publish Date: </dt><dd>&nbsp;' . $display_date .'</dd>
-				<dt>Category:     </dt><dd>&nbsp;' . $displayCategory . '</dd>
+				<dt>Sermon Title:      </dt><dd>&nbsp;' . $displaySermonTitle . '</dd>
+				<dt>Preacher:          </dt><dd>&nbsp;' . $displayPreacher . '</dd>
+				<dt>Sermon Series:     </dt><dd>&nbsp;' . $displaySermonSeries . '</dd>
+				<dt>Sermon Topics:     </dt><dd>&nbsp;' . $displaySermonTopics . '</dd>
+				<dt>Sermon Descrption: </dt><dd>&nbsp;' . $displaySermonDescription . '</dd>
+				<dt>Bible Passage:     </dt><dd>&nbsp;' . $displayBiblePassage . '</dd>
+				<dt>Bible Book:        </dt><dd>&nbsp;' . $displayBibleBook . '</dd>
+				<dt>Service Type:      </dt><dd>&nbsp;' . $displayService . '</dd>
+				<p></p>
+				<dt>Artist:       </dt><dd>&nbsp;' . $displayArtist . '</dd>
+				<dt>Comment:      </dt><dd>&nbsp;' . $displayComment . '</dd>
+				<dt>Publish Date: </dt><dd>&nbsp;' . $date['display_date'] .'</dd>
+				<dt>Genre:        </dt><dd>&nbsp;' . $displayGenre . '</dd>
 				<dt>Album:        </dt><dd>&nbsp;' . $displayAlbum . '</dd>
 				<dt>Year:         </dt><dd>&nbsp;' . $displayYear . '</dd>
 				<dt>Length:       </dt><dd>&nbsp;' . $displayLength . '</dd>
@@ -714,13 +734,13 @@ class SermonManagerImport {
 
 					// TODO add support for featured image
 
-					$this->set_message( 'Post created: ' . $audio[$this->options['sermon_title']], 'success');
+					$this->set_message( 'Sermon created: ' . $audio[$this->options['sermon_title']]);
 				} else {
-					$this->set_message( 'Post already exists: ' . $audio[$this->options['sermon_title']] );
+					$this->set_message( 'Sermon already exists: ' . $audio[$this->options['sermon_title']] );
 				}
 			} else {
 				if (!$title) {
-					$this->set_message( 'The title for the file ' . $sermon_file_name . 'was not set. This is needed to create a post with that title.', 'error' );
+					$this->set_message( 'The title for the file ' . $sermon_file_name . 'was not set. This is needed to create a sermon with that title.', 'error' );
 				}
 			}
 		}
