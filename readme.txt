@@ -25,6 +25,15 @@ When the sermon is posted, the file is moved to the uploads folder using the org
 
 [ID3](http://en.wikipedia.com/wiki/ID3) is metadata for most MP3 files. When you use a media player (e.g. iTunes, Windows Media Player, etc.) the title, artist, etc. is stored within each file in the ID3 format.
 
+= I get a `Fatal error: Maximum execution time of 30 seconds exceeded` =
+Likely you are importing a lot of sermons. Refresh the page and import all of them again. Repeat if that doesn't do it.
+
+= Does this work with Amazon S3 or other serivces? =
+Not sure. Please let me know.
+
+= Can I help? =
+Sure can. See the Contributing section below.
+
 == Contributing ==
 If you want to contribute go to [Github](github.com), fork, and send a pull request. Issues and comments are welcome as well.
 

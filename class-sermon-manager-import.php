@@ -414,7 +414,7 @@ class SermonManagerImport {
 				$file_path      = $this->folder_path.'/'.$file_name;
 				$id3            = $this->get_ID3( $file_path );
 				$date_string    = ($this->options['date'] === '') ? $file_name : $id3[$this->options['date']] ;
-				$date           = $this->get_dates( $date_string );
+				$date           = $this->get_dates( $date_string, $file_name );
 				$audio_details .= $this->display_file_details( $id3, $file_name, $date );
 			}
 
@@ -474,7 +474,7 @@ class SermonManagerImport {
 
 		$displaySermonTitle       = empty($id3[$this->options['sermon_title']]) ? '&nbsp;' : $id3[$this->options['sermon_title']];
 		$displayPreacher          = empty($id3[$this->options['preacher']]) ? '&nbsp;' : $id3[$this->options['preacher']];
-		$displaySermonSeries      = ($this->options['bible_book_series']) ? $this->get_bible_book($id3[$this->options['bible_passage']]) : $id3[$this->options['sermon_series']];
+		$displaySermonSeries      = ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($id3[$this->options['bible_passage']]) : $id3[$this->options['sermon_series']];
 		$displaySermonTopics      = empty($id3[$this->options['sermon_topics']]) ? '&nbsp;' : $id3[$this->options['sermon_topics']];
 		$displaySermonDescription = empty($id3[$this->options['sermon_description']]) ? '&nbsp;' : $id3[$this->options['sermon_description']];
 		$displayBiblePassage      = empty($id3[$this->options['bible_passage']]) ? '&nbsp;' : $id3[$this->options['bible_passage']];
@@ -509,10 +509,11 @@ class SermonManagerImport {
 				<dt>Bible Passage:     </dt><dd>&nbsp;' . $displayBiblePassage . '</dd>
 				<dt>Bible Book:        </dt><dd>&nbsp;' . $displayBibleBook . '</dd>
 				<dt>Service Type:      </dt><dd>&nbsp;' . $displayService . '</dd>
+				<dt>Publish Date: </dt><dd>&nbsp;' . $date['display_date'] .'</dd>
+
 				<p></p>
 				<dt>Artist:       </dt><dd>&nbsp;' . $displayArtist . '</dd>
 				<dt>Comment:      </dt><dd>&nbsp;' . $displayComment . '</dd>
-				<dt>Publish Date: </dt><dd>&nbsp;' . $date['display_date'] .'</dd>
 				<dt>Genre:        </dt><dd>&nbsp;' . $displayGenre . '</dd>
 				<dt>Album:        </dt><dd>&nbsp;' . $displayAlbum . '</dd>
 				<dt>Year:         </dt><dd>&nbsp;' . $displayYear . '</dd>
@@ -632,7 +633,7 @@ class SermonManagerImport {
 		$audio = $this->get_ID3($file_path);
 
 		if($this->options['date'] === '')
-			$date = $this->get_dates($file_name);
+			$date = $this->get_dates($file_name, $file_name);
 		else
 			$date = $this->get_dates($audio[$this->options['date']]);
 
@@ -657,7 +658,7 @@ class SermonManagerImport {
 					'post_type'   => 'wpfc_sermon',
 					'tax_input'   => array (
 										'wpfc_preacher'      => $audio[$this->options['preacher']],
-										'wpfc_sermon_series' => ($this->options['bible_book_series']) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
+										'wpfc_sermon_series' => ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
 										'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
 										'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
 										'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
@@ -760,13 +761,14 @@ class SermonManagerImport {
 	/**
 	 * Determines the date to publish the post
 	 *
-	 * @param unknown $date_string
-	 * String, file name
+	 * @param string $date_string
+	 *
+	 * @param string $file_name
 	 *
 	 * @return array
 	 * Keyed array with display_date, file_date, unix_date, meridiem
 	 */
-	public function get_dates( $date_string )
+	public function get_dates( $date_string, $file_name )
 	{
 		//Find date function
 		require_once plugin_dir_path( __FILE__ ) . '/assets/' . 'FindDate.php';
@@ -789,7 +791,7 @@ class SermonManagerImport {
 			$publish_date = date( 'Y-m-d', time() );
 			$unix_date    = date( 'U', time() );
 			$meridiem     = date( 'a', time() );
-			$this->set_message( 'The publish date could not be determined. The sermon will have a date of ' . $display_date . ' unless you do not change it.' );
+			$this->set_message( 'The publish date could not be determined. '. $file_name . ' will have a date of ' . $display_date . ' unless you change it.' );
 		}
 
 		$return_array = array(
@@ -881,7 +883,7 @@ class SermonManagerImport {
 	{
 		preg_match('/(^\w{1,3}\s)?\w+/', $text, $matches);
 
-		return $matches[0];
+		return ( isset($matches[0]) ) ? $matches[0] : '';
 	}
 
 	/**
@@ -997,14 +999,14 @@ class SermonManagerImport {
 
 		$screen = get_current_screen();
 		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
-			$sermon_help_upload = '<p>' . __( 'Upload a sermon by clicking the "Upload Sermon" button. To finish the upload, in the media upload box, click "Upload Sermon" or close the dialog box.' ) . '</p>' .
+			$sermon_help_upload = '<p>' . __( 'Upload a sermon by clicking the "Upload Sermon" button. To finish the upload, in the media upload box, click "Save all changes", "Insert into post" or close the dialog box.' ) . '</p>' .
 				'<p>' . __( 'The sermons will appear in the sermon list area below this help area.') . '</p>' .
-				'<p>' . __( 'Click the "Import" button to post the individual sermon.' ) . '</p>'.
-				'<p>' . __( 'Click the "Details" button view the details (ID3 information) about the individual sermon.' ) . '</p>'.
-				'<p>' . __( 'Click the "Import all Sermons" button to attempt to post all sermons. <br /> Depending on your server configuration, your server may stop processing before all the sermons are imported. In this case, click "Import all sermons" again until all sermons are imported.' ) . '</p>';
+				'<p>' . __( 'Click the "Import" button to publish the individual sermon.' ) . __( ' or click the "Import as draft" button to publish the individual sermon as a draft. The sermon can then be published from the Sermons page.' ) . '</p>'.
+				'<p>' . __( 'Click the "Details" button view the details (Sermon Manager and ID3 information) about the individual sermon.' ) . '</p>'.
+				'<p>' . __( 'Click the "Import all Sermons" button to attempt to publish all sermons. <br /> Depending on your server configuration, your server may stop processing before all the sermons are imported. In this case, refresh the page, click "Import all sermons" again until all sermons are imported.' ) . '</p>';
 
 				$sermon_help_details = '<p>' . __( 'Files are uploaded to ' ) . $this->folder_path . ' and moved on posting to'. $this->base_path . '.</p>' .
-				'<p>' . __( 'This plugin only searchs for mp3 files. By changing the function mp3_only in sermon-manager-import.php, one can search for other file types or modify the mp3_array function.' ) . '</p>';
+				'<p>' . __( 'This plugin only searchs for mp3 files.' ) . '</p>';
 
 			get_current_screen()->add_help_tab( array(
 					'id'      => 'sermon2',

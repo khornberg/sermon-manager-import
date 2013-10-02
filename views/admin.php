@@ -25,12 +25,3 @@
         <?php if ( isset( $audio_details ) ) { echo $audio_details; } ?>
       </ul>
   </div>
-
-  <?php
-       d($this->folder_path); 
-       d($this->base_path);
-       d(get_option('smi_options'));
-       d($this->messages);
-       d($_POST);
-       d(wp_upload_dir());
-       ?>
