@@ -570,13 +570,8 @@ class SermonManagerImport {
 	}
 
 	/**
-	 * Creates a sermon from an mp3 file.
-	 *
-	 * @internal TODO refactor function
-	 *
-	 * @param unknown $path
-	 *  The base path to the folder containing the audio files to convert to posts
-	 *
+	 * Determines which files to import
+	 * @return Only on errors to log messages
 	 */
 	public function import()
 	{
@@ -613,136 +608,151 @@ class SermonManagerImport {
 
 		}
 		
+		// Import the sermon
 		for ($i=$sermon_to_post; $i < $limit; $i++) {
+			$this->import_sermon($audio_files[$i]);
+		}
+	}
 
-			// Analyze file and store returned data in $ThisFileInfo
-			$file_path = $this->folder_path . '/' . $audio_files[$i];
+	/**
+	 * Creates a sermon from an mp3 file.
+	 *
+	 * @param unknown $file_name
+	 * The base path to the folder containing the audio files to convert to sermons
+	 *
+	 */
+	public function import_sermon($file_name)
+	{
+		// Analyze file and store returned data in $ThisFileInfo
+		$file_path = $this->folder_path . '/' . $file_name;
 
-			// TODO This may be redundent could just send via POST; security vunerablity?
-			// Sending via post will not write the changes the to the file.
-			// May be useful for changing/setting the publish date
-			$audio = $this->get_ID3($file_path);
+		// TODO This may be redundent could just send via POST; security vunerablity?
+		// Sending via post will not write the changes the to the file.
+		// May be useful for changing/setting the publish date
+		$audio = $this->get_ID3($file_path);
 
-			if($this->options['date'] === '')
-				$date = $this->get_dates($audio_files[$i]);
-			else
-				$date = $this->get_dates($audio[$this->options['date']]);
+		if($this->options['date'] === '')
+			$date = $this->get_dates($file_name);
+		else
+			$date = $this->get_dates($audio[$this->options['date']]);
 
-			// check if we have a title
-			if ($audio[$this->options['sermon_title']]) {
+		// check if we have a title
+		if ($audio[$this->options['sermon_title']]) {
 
-				// check if post exists by search for one with the same title
-				$search_args = array(
-					'post_title_like' => $audio[$this->options['sermon_title']]
+			// check if post exists by search for one with the same title
+			$search_args = array(
+				'post_title_like' => $audio[$this->options['sermon_title']]
+			);
+			$title_search_result = new WP_Query( $search_args );
+
+			// If there are no posts with the title of the sermon then make the sermon
+			if ($title_search_result->post_count == 0) {
+
+				// create basic post with info from ID3 details
+				$my_post = array(
+					'post_title'  => $audio[$this->options['sermon_title']],
+					'post_name'   => $audio[$this->options['sermon_title']],
+					'post_date'   => $date['file_date'],
+					'post_status' => $this->options['publish_status'],
+					'post_type'   => 'wpfc_sermon',
+					'tax_input'   => array (
+										'wpfc_preacher'      => $audio[$this->options['preacher']],
+										'wpfc_sermon_series' => ($this->options['bible_book_series']) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
+										'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
+										'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
+										'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
+						)
 				);
-				$title_search_result = new WP_Query( $search_args );
 
-				// If there are no posts with the title of the sermon then make the sermon
-				if ($title_search_result->post_count == 0) {
+				// Insert the post!!
+				$post_id = wp_insert_post( $my_post );
 
-					// create basic post with info from ID3 details
-					$my_post = array(
-						'post_title'  => $audio[$this->options['sermon_title']],
-						'post_name'   => $audio[$this->options['sermon_title']],
-						'post_date'   => $date['file_date'],
-						'post_status' => $this->options['publish_status'],
-						'post_type'   => 'wpfc_sermon',
-						'tax_input'   => array (
-											'wpfc_preacher'      => $audio[$this->options['preacher']],
-											'wpfc_sermon_series' => ($this->options['bible_book_series']) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
-											'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
-											'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
-											'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
-							)
+				// move the file to the right month/date directory in wordpress
+				$wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
+
+				/**
+				* @internal Delete unattached entry in the media library
+				* @internal Searches for a post in the wp_posts table that is an attachment type with an inherited status and matches the search terms
+				* @internal Trys to find by ID3 Title as WP 3.6 gets it from the file
+				* @internal If more than one or none is found try searching using the file name instead.
+				*
+				* @internal Important that this occur after the file is moved else the file is also deleted.
+				*/
+
+				// Query for title
+				$args = array(
+					'post_type' => 'attachment',
+					'post_status' => 'inherit',
+					's' => $audio[$this->options['sermon_title']],
 					);
+				$query = new WP_Query( $args );
 
-					// Insert the post!!
-					$post_id = wp_insert_post( $my_post );
+				// Search
+				if ($query->found_posts == 1) {
+					wp_delete_attachment( $query->post->ID, $force_delete = false );
+				} else {
+					$filename = pathinfo($file_name,PATHINFO_FILENAME);
 
-					// move the file to the right month/date directory in wordpress
-					$wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
-
-					/**
-					* @internal Delete unattached entry in the media library
-					* @internal Searches for a post in the wp_posts table that is an attachment type with an inherited status and matches the search terms
-					* @internal Trys to find by ID3 Title as WP 3.6 gets it from the file
-					* @internal If more than one or none is found try searching using the file name instead.
-					*
-					* @internal Important that this occur after the file is moved else the file is also deleted.
-					*/
-
+					// Query for file name
 					$args = array(
-						'post_type' => 'attachment',
-						'post_status' => 'inherit',
-						's' => $audio[$this->options['sermon_title']],
-						);
+					'post_type' => 'attachment',
+					'post_status' => 'inherit',
+					's' => $filename,
+					);
 					$query = new WP_Query( $args );
 
 					if ($query->found_posts == 1) {
 						wp_delete_attachment( $query->post->ID, $force_delete = false );
 					} else {
-						$filename = pathinfo($audio_files[$i],PATHINFO_FILENAME);
-
-						$args = array(
-						'post_type' => 'attachment',
-						'post_status' => 'inherit',
-						's' => $filename,
-						);
-						$query = new WP_Query( $args );
-
-						if ($query->found_posts == 1) {
-							wp_delete_attachment( $query->post->ID, $force_delete = false );
-						} else {
-						   $this->set_message( 'No previous attachment deleted. You may have an unattached media entry in the media library. Or you may have uploaded files to the server via another method.', 'warning' );
-						}
+					   $this->set_message( 'No previous attachment deleted. You may have an unattached media entry in the media library. Or you may have uploaded files to the server via another method.', 'warning' );
 					}
-
-					// add the file to the sermon/post as an attachment in the media library
-					$wp_filetype = wp_check_filetype( basename( $wp_file_info['file'] ), null );
-					$attachment = array(
-						'post_mime_type' => $wp_filetype['type'],
-						'post_title'     => $audio[$this->options['sermon_title']],
-						'post_content'   => $audio[$this->options['sermon_title']].' by '.$audio[$this->options['preacher']].' from '.$audio[$this->options['sermon_series']].'. Released: '.$audio['year'],
-						'post_status'    => 'inherit',
-						'guid'           => $wp_file_info['file'],
-						'post_parent'    => $post_id,
-					);
-					$attach_id = wp_insert_attachment( $attachment, $wp_file_info['file'], $post_id );
-					wp_update_attachment_metadata( $post_id, $attachment );
-
-					// if moved correctly delete the original
-					if ( empty( $wp_file_info['error'] ) ) {
-						unlink( $file_path );
-					}
-
-					// This is for embeded images and attached files
-					// you must first include the image.php file
-					// for the function wp_generate_attachment_metadata() to work
-					require_once ABSPATH . 'wp-admin/includes/image.php';
-					$attach_data = wp_generate_attachment_metadata( $attach_id, $wp_file_info['file'] );
-					wp_update_attachment_metadata( $attach_id, $attach_data );
-
-					add_post_meta( $post_id, 'sermon_date', $date['unix_date'], $unique = false );
-					add_post_meta( $post_id, 'bible_passage', $audio[$this->options['bible_passage']], $unique = false );
-					add_post_meta( $post_id, 'sermon_audio', $wp_file_info['url'], $unique = false );
-
-					// TODO might add support for these values
-					// add_post_meta( $post_id, 'sermon_video', $meta_value, $unique = false );
-					// add_post_meta( $post_id, 'sermon_notes', $meta_value, $unique = false );
-					add_post_meta( $post_id, 'sermon_description', $audio[$this->options['sermon_description']], $unique = false );
-
-					// TODO add support for featured image
-					// add_post_meta( $post_id, '_thumbnail_id', $thumbnail_id)
-
-					$link = ($this->options['publish_status'] === 'draft') ? 'post.php?post=' . $post_id . '&action=edit' : get_permalink( $post_id );
-					$this->set_message( 'Sermon created: <a href="' . $link . '">' . $audio[$this->options['sermon_title']] . '</a>');
-				} else {
-					$this->set_message( 'Sermon already exists: ' . $audio[$this->options['sermon_title']] );
 				}
+
+				// add the file to the sermon/post as an attachment in the media library
+				$wp_filetype = wp_check_filetype( basename( $wp_file_info['file'] ), null );
+				$attachment = array(
+					'post_mime_type' => $wp_filetype['type'],
+					'post_title'     => $audio[$this->options['sermon_title']],
+					'post_content'   => $audio[$this->options['sermon_title']].' by '.$audio[$this->options['preacher']].' from '.$audio[$this->options['sermon_series']].'. Released: '.$audio['year'],
+					'post_status'    => 'inherit',
+					'guid'           => $wp_file_info['file'],
+					'post_parent'    => $post_id,
+				);
+				$attach_id = wp_insert_attachment( $attachment, $wp_file_info['file'], $post_id );
+				wp_update_attachment_metadata( $post_id, $attachment );
+
+				// if moved correctly and file is still there delete the original
+				if ( file_exists($file_name) && empty( $wp_file_info['error'] ) ) {
+					unlink( $file_path );
+				}
+
+				// This is for embeded images and attached files
+				// you must first include the image.php file
+				// for the function wp_generate_attachment_metadata() to work
+				require_once ABSPATH . 'wp-admin/includes/image.php';
+				$attach_data = wp_generate_attachment_metadata( $attach_id, $wp_file_info['file'] );
+				wp_update_attachment_metadata( $attach_id, $attach_data );
+
+				add_post_meta( $post_id, 'sermon_date', $date['unix_date'], $unique = false );
+				add_post_meta( $post_id, 'bible_passage', $audio[$this->options['bible_passage']], $unique = false );
+				add_post_meta( $post_id, 'sermon_audio', $wp_file_info['url'], $unique = false );
+
+				// TODO might add support for these values somehow
+				// add_post_meta( $post_id, 'sermon_video', $meta_value, $unique = false );
+				// add_post_meta( $post_id, 'sermon_notes', $meta_value, $unique = false );
+				add_post_meta( $post_id, 'sermon_description', $audio[$this->options['sermon_description']], $unique = false );
+
+				// TODO add support for featured image
+				// add_post_meta( $post_id, '_thumbnail_id', $thumbnail_id)
+
+				$link = ($this->options['publish_status'] === 'draft') ? 'post.php?post=' . $post_id . '&action=edit' : get_permalink( $post_id );
+				$this->set_message( 'Sermon created: <a href="' . $link . '">' . $audio[$this->options['sermon_title']] . '</a>');
 			} else {
-				if (!$title) {
-					$this->set_message( 'The title for the file ' . $sermon_file_name . 'was not set. This is needed to create a sermon with that title.', 'error' );
-				}
+				$this->set_message( 'Sermon already exists: ' . $audio[$this->options['sermon_title']] );
+			}
+		} else {
+			if (!$title) {
+				$this->set_message( 'The title for the file ' . $sermon_file_name . 'was not set. This is needed to create a sermon with that title.', 'error' );
 			}
 		}
 	}
@@ -772,51 +782,6 @@ class SermonManagerImport {
 			$publish_date = $file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00';
 			$unix_date    = strtotime($publish_date);
 			$meridiem     = $file_date['meridiem'];
-
-		//Get the date from the file name minus the extention
-		// $file_length = strlen( pathinfo($filename, PATHINFO_FILENAME) );
-
-		// if ($file_length >= 8 && is_numeric($file_length)) {
-		//     $file_date = substr( $filename, 0, 8 );
-
-		//     // Set publish_date for word press post
-		//     // Set unix_date for other plugins and as a common date
-		//     if ( is_numeric( $file_date ) ) {
-		//         $file_year    = substr( $file_date, 0, 4 );
-		//         $file_month   = substr( $file_date, 4, 2 );
-		//         $file_days    = substr( $file_date, 6, 2 );
-		//         $file_date    = $file_year . '-' . $file_month . '-' . $file_days . ' ' . '06:00:00';
-		//         $publish_date = $file_date;
-		//         $unix_date    = strtotime($publish_date);
-		//         // Set meridiem
-		//         $file_meridiem = pathinfo($filename, PATHINFO_FILENAME);
-		//         if ( preg_match("/(a|A)$|(am|AM)$|morning/", $file_meridiem) )
-		//             $meridiem = 'am';
-		//         elseif ( preg_match("/(p|P)$|(pm|PM)$|evening/", $file_meridiem) )
-		//             $meridiem = 'pm';
-		//         else
-		//             $meridiem = '';
-		//     } else {
-		//         // No date could be determined from the file name
-		//         // Set publish_date, unix_date, and meridiem to the current time
-		//         $publish_date = date( 'Y-m-d', time() );
-		//         $unix_date    = date( 'U', time() );
-		//         $meridiem     = date( 'a', time() );
-		//         // Set file_date to the current time to determine the display_date below
-		//         $file_date    = time();
-		//     }
-
-		//     // Set display_date for admin page and modal
-		//     $file_time = strtotime( $file_date );
-
-		//     if ($file_time) {
-		//         $display_date = date( 'F j, Y', $file_time );
-		//     } else {
-		//         // No date could be determined from the file name
-		//         // Set display_date to the current time
-		//         $display_date = date( 'F j, Y', time()) ;
-		//         $this->set_message( 'The publish date for ' . $filename . ' could not be determined. It will be published ' . $display_date . ' if you do not change it.' );
-		//     }
 		} else {
 			// No date could be determined from the file name
 			// Sets all dates to the current time
