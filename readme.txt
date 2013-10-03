@@ -54,6 +54,10 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 == Changelog ==
 
+= 0.2.1 =
+* Added option to set service type based on merdiem
+* Remove old file
+
 = 0.2 =
 * Added GUI to allow customized bind of ID3 tags to Sermon Manager fields (e.g. comment to bible passage, date from the file name, etc.)  
 * Warns if sermon manager not activated, will not import if the sermon manager plugin is not activated 
@@ -68,6 +72,9 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 * Initial Release
 
 == Upgrade Notice ==
+
+= 0.2.1 =
+Added option to set service type based on merdiem
 
 = 0.2 =
 Added many options including specifying the ID3 tags used to import into Sermon Manager.

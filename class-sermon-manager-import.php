@@ -24,7 +24,7 @@ class SermonManagerImport {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0.2.0';
+	const VERSION = '0.2.1';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -627,9 +627,6 @@ class SermonManagerImport {
 		// Analyze file and store returned data in $ThisFileInfo
 		$file_path = $this->folder_path . '/' . $file_name;
 
-		// TODO This may be redundent could just send via POST; security vunerablity?
-		// Sending via post will not write the changes the to the file.
-		// May be useful for changing/setting the publish date
 		$audio = $this->get_ID3($file_path);
 
 		if($this->options['date'] === '')
@@ -876,6 +873,8 @@ class SermonManagerImport {
 	 * @param string $text
 	 * Well formated bible reference (e.g. John 1, John 1:11, 1 John 5:1-3, 3 Jh 5 )
 	 *
+	 * @since 0.1.0
+	 * 
 	 * @return string
 	 * @author khornberg
 	 **/
@@ -889,19 +888,19 @@ class SermonManagerImport {
 	/**
 	 * Returns the service type based on meridiem
 	 *
-	 * @internal One time use only. Fits only a specific situation. For my local church.
-	 *
 	 * @param string text
 	 *
+	 * @since 0.1.0
+	 * 
 	 * @return string
 	 * @author khornberg
 	 **/
 	public function get_service_type( $meridiem )
 	{
 		if ( $meridiem === 'pm' )
-			return 'Sunday Evening';
+			return $this->options['pm_service'];
 		else
-			return 'Sunday Morning';
+			return $this->options['am_service'];
 	}
 
 	/*--------------------------------------------*
@@ -990,6 +989,8 @@ class SermonManagerImport {
 
 	/**
 	* Adds help menus items for Sermon upload
+	*
+	* @since  0.1.0
 	**/
 	public function action_add_help_menu()
 	{
@@ -1047,6 +1048,9 @@ class SermonManagerImport {
 
 	/**
 	* Changes the location of uploads
+	*
+	* @since 0.1.0
+	* 
 	**/
 
 	public function filter_sermon_upload_pre_upload( $file )
@@ -1085,6 +1089,9 @@ class SermonManagerImport {
 
 	/**
 	 * Adds a select query that lets you search for titles more easily using WP Query
+	 *
+	 * @since 0.1.0
+	 *  
 	 */
 	public function filter_title_like_posts_where( $where, &$wp_query )
 	{

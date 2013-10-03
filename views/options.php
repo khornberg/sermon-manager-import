@@ -21,7 +21,9 @@ class SermonManagerImportSettings
         'upload_folder' => 'sermon-manager-import',
         'date' => 'subtitle',
         'date_format' => 'DDMMYYYY',
-        'date_year_split' => 50
+        'date_year_split' => 50,
+        'am_service' => 'Sunday Morning',
+        'pm_service' => 'Sunday Evening'
     );
 
     /**
@@ -56,10 +58,7 @@ class SermonManagerImportSettings
                 'sermon-manager-import-options', 
                 array( $this, 'create_admin_page') 
                 );
-        }
-
-        //Testing
-        
+        }        
     }
 
     /**
@@ -246,6 +245,28 @@ class SermonManagerImportSettings
                 'date_year_split'
             )
         );
+
+        add_settings_field(
+            'am_service', 
+            'AM Meridiem', 
+            array( $this, 'am_service_callback' ), 
+            'smi-settings', 
+            'setting_section_other',
+            array (
+                'am_service'
+            )
+        );
+
+        add_settings_field(
+            'pm_service', 
+            'PM Meridiem', 
+            array( $this, 'pm_service_callback' ), 
+            'smi-settings', 
+            'setting_section_other',
+            array (
+                'pm_service'
+            )
+        );
     
     }
 
@@ -338,12 +359,10 @@ class SermonManagerImportSettings
      */
     public function date_format_callback($args)
     {
-        // echo $this->options[$args[0]];
-
         $selected = esc_attr( $this->options[$args[0]]);
 
         $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">
-            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>Year Month Day Merideim</option>
+            <option value="YYYYMMDD"' . selected($selected, 'YYYYMMDD', false) . '>Year Month Day Meridiem</option>
             <option value="DDMMYYYY"' . selected($selected, 'DDMMYYYY', false) . '>Day Month Year Meridiem</option>
         </select>';
 
@@ -361,6 +380,36 @@ class SermonManagerImportSettings
     public function date_year_split_callback($args)
     {
         echo '<input type="text" max="99" min="0" id="'.$args[0].'" name="smi_options['.$args[0].']" value="'.$this->options[$args[0]].'" > <br />Year entered determines if a two digit year is from the 1900s or 2000s. The default is 50, so years 50-99 are 1950-1999 and 00-49 are 2000-2049.';
+    }
+
+    public function am_service_callback($args)
+        {
+        $selected = esc_attr( $this->options[$args[0]]);
+        $service_types = get_terms( 'wpfc_service_type', array( 'hide_empty' => 0 ) ); //array of objects; name property is what we want
+        $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">';
+            foreach ($service_types as $type) {
+                $options .= '<option value="' . $type->name . '"' . selected($selected, $type->name, false) . '>' . $type->name . '</option>';
+            }
+        $options .= '</select>';
+
+        $options .= '<p>Sets the AM merdiem to the selected service type. So when a sermon is imported and the date includes a merdiem determined to be AM, the selected service type will be applied.</p>';
+
+        echo $options;
+    }
+
+    public function pm_service_callback($args)
+        {
+        $selected = esc_attr( $this->options[$args[0]]);
+        $service_types = get_terms( 'wpfc_service_type', array( 'hide_empty' => 0 ) ); //array of objects; name property is what we want
+        $options = '<select id="'. $args[0] . '" name="smi_options[' .  $args[0] .']">';
+            foreach ($service_types as $type) {
+                $options .= '<option value="' . $type->name . '"' . selected($selected, $type->name, false) . '>' . $type->name . '</option>';
+            }
+        $options .= '</select>';
+
+        $options .= '<p>Sets the PM merdiem to the selected service type. So when a sermon is imported and the date includes a merdiem determined to be PM, the selected service type will be applied.</p>';
+
+        echo $options;
     }
 }
 
