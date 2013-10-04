@@ -10,7 +10,7 @@ Imports sermons into Sermon Manager using ID3 information.
 
 ## Description
 
-Imports sermons into [Sermon Manager for Wordpress](https://bitbucket.org/wpforchurch/sermon-manager-for-wordpress) using ID3 information. Only MP3 files are currently supported. Files can either be uploaded via the WordPress uploader or through another method. The plugin adds files to the `wp-content/uploads/sermon-manager-import` folder by default. A different folder can be specified in the options. The plugin only searches the base folder specified! Files added through the WordPress uploader will show up in the media library as unattached. The files are then attached when imported. 
+Imports sermons into [Sermon Manager for Wordpress](https://bitbucket.org/wpforchurch/sermon-manager-for-wordpress) using ID3 information. Only MP3 files are currently supported. Files can either be uploaded via the WordPress uploader or through another method. The plugin adds files to the `wp-content/uploads/sermon-manager-import` folder by default. A different folder can be specified in the options. The plugin only searches the base folder specified! Files added through the WordPress uploader will show up in the media library as unattached. The files are then attached to the sermon when imported. 
 
 When the sermon is posted, the file is moved to the uploads folder using the organization method selected in the WordPress settings. Sermons can be posted in the `publish` or `draft` status.
 
@@ -25,7 +25,7 @@ When the sermon is posted, the file is moved to the uploads folder using the org
 [ID3](http://en.wikipedia.com/wiki/ID3) is metadata for most MP3 files. When you use a media player (e.g. iTunes, Windows Media Player, etc.) the title, artist, etc. is stored within each file in the ID3 format.
 
 ### I get a `Fatal error: Maximum execution time of 30 seconds exceeded`
-Likely you are importing a lot of sermons. Refresh the page and import all of them again. Repeat if that doesn't do it.
+Likely you are importing a lot of sermons. Refresh the page and import all of the remaining sermons again. Repeat as necessary if that doesn't do it. Your server is set to run a process for limited time. When importing many sermons, you reach this limit and the server lets you know.
 
 ### Does this work with Amazon S3 or other serivces?
 Not sure. Please let me know.
@@ -43,8 +43,8 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ## Screenshots
 
-[Screenshot Menu](Screenshot1.png)
-[Screenshot Import](Screenshot2.png)
+[Screenshot Menu](Screenshot2.png)
+[Screenshot Import](Screenshot1.png)
 [Screenshot Options](Screenshot3.png)
 
 ## TODO (if interest is expressed)
@@ -81,6 +81,8 @@ Added many options including specifying the ID3 tags used to import into Sermon 
 ## Thank you
 Thank you Jack for creating a useful and well documented plugin. Other themes and plugins are available at [WordPress for Church](http://www.wpforchurch.com/).
 
-Tom McFarlin's [WordPress Plugin Boilerplate](https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate).
+Tom McFarlin's [WordPress Plugin Boilerplate](https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate).  
 
-James Heinrich's [getID3](https://github.com/JamesHeinrich/getID3).
+James Heinrich's [getID3](https://github.com/JamesHeinrich/getID3).  
+
+Paul Sheldrake's [MP3 to Post Plugin](www.fractured-state.com/2011/09/mp3-to-post-plugin).
