@@ -43,9 +43,9 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ## Screenshots
 
-[Screenshot Menu](Screenshot2.png)
-[Screenshot Import](Screenshot1.png)
-[Screenshot Options](Screenshot3.png)
+![Screenshot Menu](Screenshot2.png)
+![Screenshot Import](Screenshot1.png)
+![Screenshot Options](Screenshot3.png)
 
 ## TODO (if interest is expressed)
 - Add featured image from ID3 embedded picture

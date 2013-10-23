@@ -3,7 +3,7 @@
 - Tags: sermon, sermon manager, mp3, podcasting, id3, podcast, podcaster, audio, music, spokenword
 - Requires at least: 3.0
 - Tested up to: 3.6
-- Stable tag: 0.2
+- Stable tag: 0.2.1
 - License: GPLv3
 
 Imports sermons into Sermon Manager using ID3 information.
@@ -25,28 +25,28 @@ When the sermon is posted, the file is moved to the uploads folder using the org
 
 [ID3](http://en.wikipedia.com/wiki/ID3) is metadata for most MP3 files. When you use a media player (e.g. iTunes, Windows Media Player, etc.) the title, artist, etc. is stored within each file in the ID3 format.
 
-= I get a `Fatal error: Maximum execution time of 30 seconds exceeded` =
+= I get a Fatal error: Maximum execution time of 30 seconds exceeded =
 Likely you are importing a lot of sermons. Refresh the page and import all of the remaining sermons again. Repeat as necessary if that doesn't do it. Your server is set to run a process for limited time. When importing many sermons, you reach this limit and the server lets you know.
 
 = Does this work with Amazon S3 or other serivces? =
 Not sure. Please let me know.
 
 = Can I help? =
-Sure can. See the Contributing section below.
+Sure can. See the Other Notes section.
 
 == Contributing ==
 If you want to contribute go to [Github](github.com), fork, and send a pull request. Issues and comments are welcome as well.
 
-= **WARNINGS**
+== WARNINGS ==
 * All uploads identified as `audio/mp3` (usually only MP3 files) are uploaded to the import folder specified. All other files will be uploaded to the normal upload directory.  
 * When posting a file that is an unattached entry, the unattached entry will be deleted. Normally, this is not an issue and is only a temporary entry. However, if you manually attached the uploaded media to a post, it will not work after importing the sermon. This is an unlikely scenario.  
 * This plugin does not have the ability to add media already in the WordPress media library to sermon manager. To do this, one would manually (ssh, ftp, etc) move the files to the specified import folder. Then continue as normal. This method will delete the previous entry in the media library. If you have the media attached to another post, the old post will not work.
 
 == Screenshots ==
 
-[Screenshot Menu](Screenshot2.png)
-[Screenshot Import](Screenshot1.png)
-[Screenshot Options](Screenshot3.png)
+![Screenshot Menu](Screenshot2.png)
+![Screenshot Import](Screenshot1.png)
+![Screenshot Options](Screenshot3.png)
 
 == TODO (if interest is expressed) ==
 - Add featured image from ID3 embedded picture
