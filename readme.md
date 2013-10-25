@@ -16,7 +16,10 @@ When the sermon is posted, the file is moved to the uploads folder using the org
 
 ## Installation
 
-1. Upload the plugin directory to the `/wp-content/plugins/` directory via FTP or `git clone https://github.com/khornberg/sermon-manager-import` in the `/wp-content/plugins/` directory.
+1. Get the plugin 
+  1. Your WordPress control panel 
+  2. Upload the plugin directory to the `/wp-content/plugins/` directory via FTP 
+  3. `git clone https://github.com/khornberg/sermon-manager-import` in the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 ## Frequently Asked Questions
