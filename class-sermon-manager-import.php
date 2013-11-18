@@ -687,6 +687,12 @@ class SermonManagerImport {
 				// move the file to the right month/date directory in wordpress
 				$wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
 
+				// error uploading file, abort
+				if ( ! empty( $wp_file_info['error'])) {
+					$this->set_message( 'Error importing: ' . $audio[$this->options['sermon_title']] . '<br />' . $wp_file_info['error'], 'error');
+					return;
+				}
+
 				/**
 				* @internal Delete unattached entry in the media library
 				* @internal Searches for a post in the wp_posts table that is an attachment type with an inherited status and matches the search terms
