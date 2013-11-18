@@ -501,6 +501,7 @@ class SermonManagerImport {
 			<span><b>' . $displayTitle . '</b></span>
 			</form>
 			<dl id="dl-details-' . $fileUnique . '" class="dl-horizontal">
+				<h2>Import as:</h2>
 				<dt>Sermon Title:      </dt><dd>&nbsp;' . $displaySermonTitle . '</dd>
 				<dt>Preacher:          </dt><dd>&nbsp;' . $displayPreacher . '</dd>
 				<dt>Sermon Series:     </dt><dd>&nbsp;' . $displaySermonSeries . '</dd>
@@ -511,7 +512,7 @@ class SermonManagerImport {
 				<dt>Service Type:      </dt><dd>&nbsp;' . $displayService . '</dd>
 				<dt>Publish Date: </dt><dd>&nbsp;' . $date['display_date'] .'</dd>
 
-				<p></p>
+				<h2>On the file:</h2>
 				<dt>Artist:       </dt><dd>&nbsp;' . $displayArtist . '</dd>
 				<dt>Comment:      </dt><dd>&nbsp;' . $displayComment . '</dd>
 				<dt>Genre:        </dt><dd>&nbsp;' . $displayGenre . '</dd>
@@ -646,6 +647,30 @@ class SermonManagerImport {
 			// If there are no posts with the title of the sermon then make the sermon
 			if ($title_search_result->post_count == 0) {
 
+				$tax_input_array = array ();
+
+				$wpfc_options = get_option('wpfc_options');
+
+				if ($wpfc_options['version'] < '1.8') {
+					$tax_input_array = array (
+						'wpfc_preacher'      => $audio[$this->options['preacher']],
+						'wpfc_sermon_series' => ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
+						'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
+						'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
+						'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
+						);
+				} else {
+					$tax_input_array = array (
+						'wpfc_preacher'      => $audio[$this->options['preacher']],
+						'wpfc_sermon_series' => ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
+						'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
+						'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
+						'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
+						'wpfc_sermon_duration' => $audio['length'],
+						'wpfc_sermon_size' => $audio['size'],
+						);
+				}
+
 				// create basic post with info from ID3 details
 				$my_post = array(
 					'post_title'  => $audio[$this->options['sermon_title']],
@@ -653,13 +678,7 @@ class SermonManagerImport {
 					'post_date'   => $date['file_date'],
 					'post_status' => $this->options['publish_status'],
 					'post_type'   => 'wpfc_sermon',
-					'tax_input'   => array (
-										'wpfc_preacher'      => $audio[$this->options['preacher']],
-										'wpfc_sermon_series' => ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
-										'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
-										'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
-										'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
-						)
+					'tax_input'   => $tax_input_array
 				);
 
 				// Insert the post!!
@@ -854,6 +873,7 @@ class SermonManagerImport {
 		$tags['composer'] = empty( $ThisFileInfo['id3v2']['TCOM'][0]['data'] ) ? '' : sanitize_text_field( $ThisFileInfo['id3v2']['TCOM'][0]['data'] );
 		$tags['bitrate'] = sanitize_text_field( $ThisFileInfo['bitrate'] );
 		$tags['length'] = sanitize_text_field( $ThisFileInfo['playtime_string'] );
+		$tags['size'] = sanitize_text_field( $ThisFileInfo['filesize'] );
 
 		if ( isset($ThisFileInfo['comments']['picture'][0]) ) {
 			$pictureData = $ThisFileInfo['comments']['picture'][0];
