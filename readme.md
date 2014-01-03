@@ -59,7 +59,7 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ### 0.2.2
 * Sets new podcasting options as of Sermon Manager 1.8
-* Add explaination when files are not imorted
+* Add explaination when files are not imported
 * Made details screen more clear
 
 ### 0.2.1
