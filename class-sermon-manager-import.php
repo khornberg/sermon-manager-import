@@ -926,7 +926,7 @@ class SermonManagerImport {
 		if ( $meridiem === 'pm' )
 			return $this->options['pm_service'];
 		else
-			return $this->options['am_service'];
+			return isset($this->options['am_service']) ? $this->options['am_service'] : null;
 	}
 
 	/*--------------------------------------------*
