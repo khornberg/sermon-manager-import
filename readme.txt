@@ -1,9 +1,9 @@
 === Sermon Manager Import ===
 - Contributors: khornberg
 - Tags: sermon, sermon manager, mp3, podcasting, id3, podcast, podcaster, audio, music, spokenword
-- Requires at least: 3.0
-- Tested up to: 3.6
-- Stable tag: 0.2.1
+- Requires at least: 3.5
+- Tested up to: 3.8
+- Stable tag: 0.2.2
 - License: GPLv3
 
 Imports sermons into Sermon Manager using ID3 information.
