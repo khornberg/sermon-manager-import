@@ -10,7 +10,7 @@
  * Plugin Name: Sermon Manager Import
  * Plugin URI: https://github.com/khornberg/sermon-manager-import
  * Description: Imports sermons into <a href="https://bitbucket.org/wpforchurch/sermon-manager-for-wordpress" target="blank">Sermon Manger for Wordpress</a> using ID3 information.
- * Version: 0.2.2
+ * Version: 0.2.3
  * Author: Kyle Hornberg
  * Author URI: https://github.com/khornberg
  * Author Email:

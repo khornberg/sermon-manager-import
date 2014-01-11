@@ -3,7 +3,7 @@
 - Tags: sermon, sermon manager, mp3, podcasting, id3, podcast, podcaster, audio, music, spokenword
 - Requires at least: 3.5
 - Tested up to: 3.8
-- Stable tag: 0.2.2
+- Stable tag: 0.2.3
 - License: GPLv3
 
 Imports sermons into Sermon Manager using ID3 information.
@@ -56,6 +56,9 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 - Import other types of audio files
 
 == Changelog ==
+
+= 0.2.3 =
+* Fix service array
 
 = 0.2.2 =
 * Sets new podcasting options as of Sermon Manager 1.8
