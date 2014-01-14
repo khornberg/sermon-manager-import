@@ -14,6 +14,8 @@ Imports sermons into [Sermon Manager for Wordpress](https://bitbucket.org/wpforc
 
 When the sermon is posted, the file is moved to the uploads folder using the organization method selected in the WordPress settings. Sermons can be posted in the `publish` or `draft` status.
 
+**Warning** there are a few warnings you should read in the `Other Notes` section.
+
 ## Installation
 
 1. Upload the plugin directory to the `/wp-content/plugins/` directory via FTP or `git clone https://github.com/khornberg/sermon-manager-import` in the `/wp-content/plugins/` directory.
@@ -27,14 +29,14 @@ While this plugin is activated, mp3 files will go to the folder specified in the
 ### What is ID3?
 [ID3](http://en.wikipedia.com/wiki/ID3) is metadata for most MP3 files. When you use a media player (e.g. iTunes, Windows Media Player, etc.) the title, artist, etc. is stored within each file in the ID3 format.
 
-### I get a `Fatal error: Maximum execution time of 30 seconds exceeded`
+### I get a `Fatal error: Maximum execution time of 30 seconds exceededd`
 Likely you are importing a lot of sermons. Refresh the page and import all of the remaining sermons again. Repeat as necessary if that doesn't do it. Your server is set to run a process for limited time. When importing many sermons, you reach this limit and the server lets you know.
 
-### Does this work with Amazon S3 or other serivces?
+### Does this work with Amazon S3 or other services?
 Not sure. Please let me know.
 
 ### Can I help?
-Sure can. See the Contributing section below.
+Sure can. See the Contributing / Other Notes section.
 
 ## Contributing
 If you want to contribute go to [Github](github.com), fork, and send a pull request. Issues and comments are welcome as well.
@@ -47,9 +49,9 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ## Screenshots
 
-![Screenshot Menu](screenshot-2.png)
-![Screenshot Import](screenshot-1.png)
-![Screenshot Options](screenshot-3.png)
+1. ![Screenshot Menu](wp-assets/screenshot-2.png)
+2. ![Screenshot Import](wp-assets/screenshot-1.png)
+3. ![Screenshot Options](wp-assets/screenshot-3.png)
 
 ## TODO (if interest is expressed)
 - Add featured image from ID3 embedded picture
@@ -59,11 +61,11 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ### 0.2.2
 * Sets new podcasting options as of Sermon Manager 1.8
-* Add explaination when files are not imported
+* Add explanation when files are not imported
 * Made details screen more clear
 
 ### 0.2.1
-* Added option to set service type based on merdiem
+* Added option to set service type based on meridiem
 * Remove old files
 
 ### 0.2
@@ -81,17 +83,19 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ## Upgrade Notice
 
+### 0.2.2
+* Sets new podcasting options as of Sermon Manager 1.8
+* Add explanation when files are not imported
+* Made details screen more clear
+
 ### 0.2.1
-Added option to set service type based on merdiem
+* Added option to set service type based on meridiem
 
 ### 0.2
-Added many options including specifying the ID3 tags used to import into Sermon Manager.
+* Added many options including specifying the ID3 tags used to import into Sermon Manager.
 
 ## Thank you
-Thank you Jack for creating a useful and well documented plugin. Other themes and plugins are available at [WordPress for Church](http://www.wpforchurch.com/).
-
+Thank you Jack for creating a useful and well documented plugin. Other themes and plugins are available at [WordPress for Church](http://www.wpforchurch.com/).  
 Tom McFarlin's [WordPress Plugin Boilerplate](https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate).  
-
 James Heinrich's [getID3](https://github.com/JamesHeinrich/getID3).  
-
-Paul Sheldrake's [MP3 to Post Plugin](www.fractured-state.com/2011/09/mp3-to-post-plugin).
+Paul Sheldrake's [MP3 to Post Plugin](www.fractured-state.com/2011/09/mp3-to-post-plugin).  
