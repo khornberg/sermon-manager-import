@@ -58,7 +58,7 @@ class SermonManagerImport {
 
 	/**
 	 * Folder location containing sermons
-	 * 
+	 *
 	 * @internal  Default is sermon-manager-import
 	 *
 	 * @since  0.1.0
@@ -80,7 +80,7 @@ class SermonManagerImport {
 	 * Messages to be displayed
 	 *
 	 * @since 0.1.0
-	 * 
+	 *
 	 * @var array
 	 *
 	 * Two dimensions
@@ -93,9 +93,9 @@ class SermonManagerImport {
 
 	/**
 	 * Sermon manager import options
-	 * 
+	 *
 	 * @since  0.2.0
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $options = null;
@@ -106,7 +106,7 @@ class SermonManagerImport {
 	 * @since     0.2.0
 	 */
 	private function __construct() {
-		$this->options = get_option('smi_options');
+		$this->options = get_option( 'smi_options' );
 
 		// Set paths to folders
 		self::set_paths();
@@ -140,7 +140,7 @@ class SermonManagerImport {
 		add_filter( 'wp_handle_upload', array( $this, 'filter_sermon_upload_post_upload' ) );
 
 		// Filter posts
-		add_filter( 'posts_where', array( $this, 'filter_title_like_posts_where') , 10, 2 );
+		add_filter( 'posts_where', array( $this, 'filter_title_like_posts_where' ) , 10, 2 );
 
 		// Add help menu to plugin
 		add_action( 'current_screen', array( $this, 'action_add_help_menu' ) );
@@ -174,7 +174,7 @@ class SermonManagerImport {
 	 *
 	 * @since    0.2.0
 	 *
-	 * @param    boolean    $network_wide    True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog.
+	 * @param boolean $network_wide True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog.
 	 */
 	public static function activate( $network_wide ) {
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
@@ -200,7 +200,7 @@ class SermonManagerImport {
 	 *
 	 * @since    0.2.0
 	 *
-	 * @param    boolean    $network_wide    True if WPMU superadmin uses "Network Deactivate" action, false if WPMU is disabled or plugin is deactivated on an individual blog.
+	 * @param boolean $network_wide True if WPMU superadmin uses "Network Deactivate" action, false if WPMU is disabled or plugin is deactivated on an individual blog.
 	 */
 	public static function deactivate( $network_wide ) {
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
@@ -226,7 +226,7 @@ class SermonManagerImport {
 	 *
 	 * @since    0.2.0
 	 *
-	 * @param   int $blog_id ID of the new blog.
+	 * @param int     $blog_id ID of the new blog.
 	 */
 	public function activate_new_site( $blog_id ) {
 		if ( 1 !== did_action( 'wpmu_new_blog' ) )
@@ -266,8 +266,8 @@ class SermonManagerImport {
 		$html = '';
 
 		if ( ! class_exists( 'getID3' ) ) {
-			if (file_exists( ABSPATH . WPINC . '/ID3/getid3.php') ) {   
-				require( ABSPATH . WPINC . '/ID3/getid3.php' );
+			if ( file_exists( ABSPATH . WPINC . '/ID3/getid3.php' ) ) {
+				require ABSPATH . WPINC . '/ID3/getid3.php';
 			}
 			else {
 				require_once 'assets/getid3/getid3.php';
@@ -319,7 +319,7 @@ class SermonManagerImport {
 		$screen = get_current_screen();
 		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array(), self::VERSION );
-			wp_enqueue_style( 'thickbox' ); 
+			wp_enqueue_style( 'thickbox' );
 		}
 
 	}
@@ -370,7 +370,7 @@ class SermonManagerImport {
 	 * @since    0.2.0
 	 */
 	public function add_plugin_admin_menu() {
-		
+
 		if ( ! is_plugin_active( 'sermon-manager-for-wordpress/sermons.php' ) ) {
 			$this->plugin_screen_hook_suffix = add_plugins_page(
 				__( 'Sermon Manager Import', $this->plugin_slug ),
@@ -381,13 +381,13 @@ class SermonManagerImport {
 			);
 		}
 		else {
-			$this->plugin_screen_hook_suffix = add_submenu_page( 
-				'edit.php?post_type=wpfc_sermon', 
+			$this->plugin_screen_hook_suffix = add_submenu_page(
+				'edit.php?post_type=wpfc_sermon',
 				__( 'Import Sermons', $this->plugin_slug ),
 				__( 'Import Sermons', $this->plugin_slug ),
-				'upload_files', 
-				$this->plugin_slug, 
-				array( $this, 'display_plugin_admin_page') 
+				'upload_files',
+				$this->plugin_slug,
+				array( $this, 'display_plugin_admin_page' )
 			);
 		}
 	}
@@ -410,19 +410,19 @@ class SermonManagerImport {
 			$audio_details = null;
 
 			// list files and details
-			foreach ($audio_files as $file_name) {
+			foreach ( $audio_files as $file_name ) {
 				$file_path      = $this->folder_path.'/'.$file_name;
 				$id3            = $this->get_ID3( $file_path );
-				$date_string    = ($this->options['date'] === '') ? $file_name : $id3[$this->options['date']] ;
+				$date_string    = ( $this->options['date'] === '' ) ? $file_name : $id3[$this->options['date']] ;
 				$date           = $this->get_dates( $date_string, $file_name );
 				$audio_details .= $this->display_file_details( $id3, $file_name, $date );
 			}
 
-			include_once( 'views/admin.php' );
+			include_once 'views/admin.php';
 		}
 	}
 
-		/**
+	/**
 	 * Add settings action link to the plugins page.
 	 *
 	 * @since    0.2.0
@@ -437,7 +437,7 @@ class SermonManagerImport {
 				$links
 			);
 		}
-		else {  
+		else {
 			return array_merge(
 				array(
 					'settings' => '<a href="' . admin_url( 'edit.php?post_type=wpfc_sermon&page=' . $this->plugin_slug .'-options' ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
@@ -455,49 +455,48 @@ class SermonManagerImport {
 	/**
 	 * Display file details
 	 *
-	 * @param array $id3
+	 * @param array   $id3
 	 * Array generated by get_ID3()
 	 *
-	 * @param string $file
+	 * @param string  $file
 	 * File name
 	 *
-	 * @param string $display_date
+	 * @param string  $display_date
 	 * Date of the file taken from the file name
 	 *
 	 * @return string
 	 * Returns a string formated for display
 	 *
 	 */
-	public function display_file_details( $id3, $file, $date )
-	{
-		$displayImport  = ($this->options['publish_status'] === 'draft') ? __('Import as draft') : __('Import');
+	public function display_file_details( $id3, $file, $date ) {
+		$displayImport  = ( $this->options['publish_status'] === 'draft' ) ? __( 'Import as draft' ) : __( 'Import' );
 
-		$displaySermonTitle       = empty($id3[$this->options['sermon_title']]) ? '&nbsp;' : $id3[$this->options['sermon_title']];
-		$displayPreacher          = empty($id3[$this->options['preacher']]) ? '&nbsp;' : $id3[$this->options['preacher']];
-		$displaySermonSeries      = ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($id3[$this->options['bible_passage']]) : $id3[$this->options['sermon_series']];
-		$displaySermonTopics      = empty($id3[$this->options['sermon_topics']]) ? '&nbsp;' : $id3[$this->options['sermon_topics']];
-		$displaySermonDescription = empty($id3[$this->options['sermon_description']]) ? '&nbsp;' : $id3[$this->options['sermon_description']];
-		$displayBiblePassage      = empty($id3[$this->options['bible_passage']]) ? '&nbsp;' : $id3[$this->options['bible_passage']];
-		$displayBibleBook         = $this->get_bible_book($id3[$this->options['bible_passage']]);
-		$displayService           = $this->get_service_type($date['meridiem']);
+		$displaySermonTitle       = empty( $id3[$this->options['sermon_title']] ) ? '&nbsp;' : $id3[$this->options['sermon_title']];
+		$displayPreacher          = empty( $id3[$this->options['preacher']] ) ? '&nbsp;' : $id3[$this->options['preacher']];
+		$displaySermonSeries      = ( isset( $this->options['bible_book_series'] ) ) ? $this->get_bible_book( $id3[$this->options['bible_passage']] ) : $id3[$this->options['sermon_series']];
+		$displaySermonTopics      = empty( $id3[$this->options['sermon_topics']] ) ? '&nbsp;' : $id3[$this->options['sermon_topics']];
+		$displaySermonDescription = empty( $id3[$this->options['sermon_description']] ) ? '&nbsp;' : $id3[$this->options['sermon_description']];
+		$displayBiblePassage      = empty( $id3[$this->options['bible_passage']] ) ? '&nbsp;' : $id3[$this->options['bible_passage']];
+		$displayBibleBook         = $this->get_bible_book( $id3[$this->options['bible_passage']] );
+		$displayService           = $this->get_service_type( $date['meridiem'] );
 
-		$displayTitle   = empty($id3['title']) ? $file : $id3['title'];
-		$displayArtist  = empty($id3['artist']) ? '&nbsp;' : $id3['artist'];
-		$displayComment = empty($id3['comment']) ? '&nbsp;' : $id3['comment'];
-		$displayGenre   = empty($id3['genre']) ? '&nbsp;' : $id3['genre'];
-		$displayAlbum   = empty($id3['album']) ? '&nbsp;' : $id3['album'];
-		$displayYear    = empty($id3['year']) ? '&nbsp;' : $id3['year'];
-		$displayLength  = empty($id3['length']) ? '&nbsp;' : $id3['length'];
-		$displayBitrate = empty($id3['bitrate']) ? '&nbsp;' : $id3['bitrate'];
-		$displayImage   = empty($id3['image']) ? 'No image embded' : $id3['image'];
-		$fileUnique     = str_replace('.', '_', str_replace(' ', '_', $file));
+		$displayTitle   = empty( $id3['title'] ) ? $file : $id3['title'];
+		$displayArtist  = empty( $id3['artist'] ) ? '&nbsp;' : $id3['artist'];
+		$displayComment = empty( $id3['comment'] ) ? '&nbsp;' : $id3['comment'];
+		$displayGenre   = empty( $id3['genre'] ) ? '&nbsp;' : $id3['genre'];
+		$displayAlbum   = empty( $id3['album'] ) ? '&nbsp;' : $id3['album'];
+		$displayYear    = empty( $id3['year'] ) ? '&nbsp;' : $id3['year'];
+		$displayLength  = empty( $id3['length'] ) ? '&nbsp;' : $id3['length'];
+		$displayBitrate = empty( $id3['bitrate'] ) ? '&nbsp;' : $id3['bitrate'];
+		$displayImage   = empty( $id3['image'] ) ? 'No image embded' : $id3['image'];
+		$fileUnique     = str_replace( '.', '_', str_replace( ' ', '_', $file ) );
 
 		$info = '<li class="sermon_dl_item">
 			<form method="post" action="">
 				<input type="submit" class="button-primary" name="'. $file . '" value="' . $displayImport . '" />
 				<input type="hidden" name="filename" value="' . $file . '">
 				<input type="hidden" name="post" value="Post">
-				<button type="button" id="details-' . $fileUnique . '" class="button-secondary">' . __('Details') . '</button>
+				<button type="button" id="details-' . $fileUnique . '" class="button-secondary">' . __( 'Details' ) . '</button>
 			<span><b>' . $displayTitle . '</b></span>
 			</form>
 			<dl id="dl-details-' . $fileUnique . '" class="dl-horizontal">
@@ -527,21 +526,20 @@ class SermonManagerImport {
 
 		return $info;
 	}
-	
+
 	/**
 	 * Gives an array of mp3 files to turn in to posts
 	 *
-	 * @param string $folder_path
+	 * @param string  $folder_path
 	 *
 	 * @return $array
 	 *  Returns an array of mp3 file names from the directory created by the plugin
 	 */
-	public function get_audio_files( $folder_path )
-	{
+	public function get_audio_files( $folder_path ) {
 		// scan folders for files and get id3 info
 		$audio_files = array_slice( scandir( $folder_path ), 2 ); // cut out the dots..
 		// filter out all the non mp3 files
-		$audio_files = array_filter( $audio_files, array($this, 'filter_audio_files') );
+		$audio_files = array_filter( $audio_files, array( $this, 'filter_audio_files' ) );
 		// sort the files
 		sort( $audio_files );
 
@@ -559,12 +557,11 @@ class SermonManagerImport {
 	 * @return
 	 *   Returns a string.  Only if it contains '.mp3' or it returns FALSE
 	 */
-	public function filter_audio_files( $filename )
-	{
+	public function filter_audio_files( $filename ) {
 		$findme = '.mp3';
 		$pos = strpos( $filename, $findme );
 
-		if ($pos !== false) {
+		if ( $pos !== false ) {
 			return $filename;
 		} else {
 			return FALSE;
@@ -573,10 +570,10 @@ class SermonManagerImport {
 
 	/**
 	 * Determines which files to import
+	 *
 	 * @return Only on errors to log messages
 	 */
-	public function import()
-	{
+	public function import() {
 		// get an array of mp3 files
 		$audio_files = $this->get_audio_files( $this->folder_path );
 
@@ -590,14 +587,14 @@ class SermonManagerImport {
 		$post_all = isset( $_POST['create-all-posts'] );
 
 		// loop through all the files and create posts
-		if ($post_all) {
+		if ( $post_all ) {
 			$limit = count( $audio_files );
 			$sermon_to_post = 0;
 		} else {
 			$sermon_file_name = $_POST['filename'];
 			$sermon_to_post = array_search( $sermon_file_name, $audio_files, true );
 
-			if ($sermon_to_post === false) {
+			if ( $sermon_to_post === false ) {
 				$this->set_message( 'Sermon could not be found in the folder of your uploads. Please check and ensure it is there.', 'error' );
 
 				return;
@@ -609,10 +606,10 @@ class SermonManagerImport {
 			$limit = $sermon_to_post + 1;
 
 		}
-		
+
 		// Import the sermon
-		for ($i=$sermon_to_post; $i < $limit; $i++) {
-			$this->import_sermon($audio_files[$i]);
+		for ( $i=$sermon_to_post; $i < $limit; $i++ ) {
+			$this->import_sermon( $audio_files[$i] );
 		}
 	}
 
@@ -623,20 +620,19 @@ class SermonManagerImport {
 	 * The base path to the folder containing the audio files to convert to sermons
 	 *
 	 */
-	public function import_sermon($file_name)
-	{
+	public function import_sermon( $file_name ) {
 		// Analyze file and store returned data in $ThisFileInfo
 		$file_path = $this->folder_path . '/' . $file_name;
 
-		$audio = $this->get_ID3($file_path);
+		$audio = $this->get_ID3( $file_path );
 
-		if($this->options['date'] === '')
-			$date = $this->get_dates($file_name, $file_name);
+		if ( $this->options['date'] === '' )
+			$date = $this->get_dates( $file_name, $file_name );
 		else
-			$date = $this->get_dates($audio[$this->options['date']]);
+			$date = $this->get_dates( $audio[$this->options['date']] );
 
 		// check if we have a title
-		if ($audio[$this->options['sermon_title']]) {
+		if ( $audio[$this->options['sermon_title']] ) {
 
 			// check if post exists by search for one with the same title
 			$search_args = array(
@@ -645,30 +641,30 @@ class SermonManagerImport {
 			$title_search_result = new WP_Query( $search_args );
 
 			// If there are no posts with the title of the sermon then make the sermon
-			if ($title_search_result->post_count == 0) {
+			if ( $title_search_result->post_count == 0 ) {
 
 				$tax_input_array = array ();
 
-				$wpfc_options = get_option('wpfc_options');
+				$wpfc_options = get_option( 'wpfc_options' );
 
-				if ($wpfc_options['version'] < '1.8') {
+				if ( $wpfc_options['version'] < '1.8' ) {
 					$tax_input_array = array (
 						'wpfc_preacher'      => $audio[$this->options['preacher']],
-						'wpfc_sermon_series' => ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
+						'wpfc_sermon_series' => ( isset( $this->options['bible_book_series'] ) ) ? $this->get_bible_book( $audio[$this->options['bible_passage']] ) : $audio[$this->options['sermon_series']],
 						'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
-						'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
-						'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
-						);
+						'wpfc_bible_book'    => $this->get_bible_book( $audio[$this->options['bible_passage']] ),
+						'wpfc_service_type'  => $this->get_service_type( $date['meridiem'] ),
+					);
 				} else {
 					$tax_input_array = array (
 						'wpfc_preacher'      => $audio[$this->options['preacher']],
-						'wpfc_sermon_series' => ( isset($this->options['bible_book_series']) ) ? $this->get_bible_book($audio[$this->options['bible_passage']]) : $audio[$this->options['sermon_series']],
+						'wpfc_sermon_series' => ( isset( $this->options['bible_book_series'] ) ) ? $this->get_bible_book( $audio[$this->options['bible_passage']] ) : $audio[$this->options['sermon_series']],
 						'wpfc_sermon_topics' => $audio[$this->options['sermon_topics']],
-						'wpfc_bible_book'    => $this->get_bible_book($audio[$this->options['bible_passage']]),
-						'wpfc_service_type'  => $this->get_service_type($date['meridiem']),
+						'wpfc_bible_book'    => $this->get_bible_book( $audio[$this->options['bible_passage']] ),
+						'wpfc_service_type'  => $this->get_service_type( $date['meridiem'] ),
 						'wpfc_sermon_duration' => $audio['length'],
 						'wpfc_sermon_size' => $audio['size'],
-						);
+					);
 				}
 
 				// create basic post with info from ID3 details
@@ -688,46 +684,48 @@ class SermonManagerImport {
 				$wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
 
 				// error uploading file, abort
-				if ( ! empty( $wp_file_info['error'])) {
-					$this->set_message( 'Error importing: ' . $audio[$this->options['sermon_title']] . '<br />' . $wp_file_info['error'], 'error');
+				if ( ! empty( $wp_file_info['error'] ) ) {
+					$this->set_message( 'Error importing: ' . $audio[$this->options['sermon_title']] . '<br />' . $wp_file_info['error'], 'error' );
 					return;
 				}
 
 				/**
-				* @internal Delete unattached entry in the media library
-				* @internal Searches for a post in the wp_posts table that is an attachment type with an inherited status and matches the search terms
-				* @internal Trys to find by ID3 Title as WP 3.6 gets it from the file
-				* @internal If more than one or none is found try searching using the file name instead.
-				*
-				* @internal Important that this occur after the file is moved else the file is also deleted.
-				*/
+				 *
+				 *
+				 * @internal Delete unattached entry in the media library
+				 * @internal Searches for a post in the wp_posts table that is an attachment type with an inherited status and matches the search terms
+				 * @internal Trys to find by ID3 Title as WP 3.6 gets it from the file
+				 * @internal If more than one or none is found try searching using the file name instead.
+				 *
+				 * @internal Important that this occur after the file is moved else the file is also deleted.
+				 */
 
 				// Query for title
 				$args = array(
 					'post_type' => 'attachment',
 					'post_status' => 'inherit',
 					's' => $audio[$this->options['sermon_title']],
-					);
+				);
 				$query = new WP_Query( $args );
 
 				// Search
-				if ($query->found_posts == 1) {
+				if ( $query->found_posts == 1 ) {
 					wp_delete_attachment( $query->post->ID, $force_delete = false );
 				} else {
-					$filename = pathinfo($file_name,PATHINFO_FILENAME);
+					$filename = pathinfo( $file_name, PATHINFO_FILENAME );
 
 					// Query for file name
 					$args = array(
-					'post_type' => 'attachment',
-					'post_status' => 'inherit',
-					's' => $filename,
+						'post_type' => 'attachment',
+						'post_status' => 'inherit',
+						's' => $filename,
 					);
 					$query = new WP_Query( $args );
 
-					if ($query->found_posts == 1) {
+					if ( $query->found_posts == 1 ) {
 						wp_delete_attachment( $query->post->ID, $force_delete = false );
 					} else {
-					   $this->set_message( 'No previous attachment deleted. You may have an unattached media entry in the media library. Or you may have uploaded files to the server via another method.', 'warning' );
+						$this->set_message( 'No previous attachment deleted. You may have an unattached media entry in the media library. Or you may have uploaded files to the server via another method.', 'warning' );
 					}
 				}
 
@@ -745,7 +743,7 @@ class SermonManagerImport {
 				wp_update_attachment_metadata( $post_id, $attachment );
 
 				// if moved correctly and file is still there delete the original
-				if ( file_exists($file_name) && empty( $wp_file_info['error'] ) ) {
+				if ( file_exists( $file_name ) && empty( $wp_file_info['error'] ) ) {
 					unlink( $file_path );
 				}
 
@@ -768,13 +766,13 @@ class SermonManagerImport {
 				// TODO add support for featured image
 				// add_post_meta( $post_id, '_thumbnail_id', $thumbnail_id)
 
-				$link = ($this->options['publish_status'] === 'draft') ? 'post.php?post=' . $post_id . '&action=edit' : get_permalink( $post_id );
-				$this->set_message( 'Sermon created: <a href="' . $link . '">' . $audio[$this->options['sermon_title']] . '</a>');
+				$link = ( $this->options['publish_status'] === 'draft' ) ? 'post.php?post=' . $post_id . '&action=edit' : get_permalink( $post_id );
+				$this->set_message( 'Sermon created: <a href="' . $link . '">' . $audio[$this->options['sermon_title']] . '</a>' );
 			} else {
 				$this->set_message( 'Sermon already exists: ' . $audio[$this->options['sermon_title']] );
 			}
 		} else {
-			if (!$title) {
+			if ( !$title ) {
 				$this->set_message( 'The title for the file ' . $sermon_file_name . 'was not set. This is needed to create a sermon with that title.', 'error' );
 			}
 		}
@@ -783,15 +781,14 @@ class SermonManagerImport {
 	/**
 	 * Determines the date to publish the post
 	 *
-	 * @param string $date_string
+	 * @param string  $date_string
 	 *
-	 * @param string $file_name
+	 * @param string  $file_name
 	 *
 	 * @return array
 	 * Keyed array with display_date, file_date, unix_date, meridiem
 	 */
-	public function get_dates( $date_string, $file_name )
-	{
+	public function get_dates( $date_string, $file_name ) {
 		//Find date function
 		require_once plugin_dir_path( __FILE__ ) . '/assets/' . 'FindDate.php';
 
@@ -801,10 +798,10 @@ class SermonManagerImport {
 
 		$file_date = $FindDate->find( $date_string );
 
-		if($file_date) {
-			$display_date = date( 'F j, Y', strtotime($file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00'));
+		if ( $file_date ) {
+			$display_date = date( 'F j, Y', strtotime( $file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00' ) );
 			$publish_date = $file_date['year'] . '-' . $file_date['month'] . '-' . $file_date['day'] . ' ' . '06:00:00';
-			$unix_date    = strtotime($publish_date);
+			$unix_date    = strtotime( $publish_date );
 			$meridiem     = $file_date['meridiem'];
 		} else {
 			// No date could be determined from the file name
@@ -821,7 +818,7 @@ class SermonManagerImport {
 			'file_date'    => $publish_date,
 			'unix_date'    => $unix_date,
 			'meridiem'     => $meridiem,
-			);
+		);
 
 		return $return_array;
 	}
@@ -835,8 +832,7 @@ class SermonManagerImport {
 	 * @return array
 	 * Keyed array with title, comment and category as keys.
 	 */
-	public function get_ID3( $file_path )
-	{
+	public function get_ID3( $file_path ) {
 		// Initialize getID3 engine
 		$get_ID3 = new getID3;
 		$ThisFileInfo = $get_ID3->analyze( $file_path );
@@ -850,28 +846,28 @@ class SermonManagerImport {
 		 */
 		getid3_lib::CopyTagsToComments( $ThisFileInfo );
 
-		$tags = array('title' => sanitize_text_field( $ThisFileInfo['filename'] ), 'genre' => '', 'artist' => '', 'album' => '', 'year' => '');
+		$tags = array( 'title' => sanitize_text_field( $ThisFileInfo['filename'] ), 'genre' => '', 'artist' => '', 'album' => '', 'year' => '' );
 
-		foreach ($tags as $key => $tag) {
-			if ( array_key_exists($key, $ThisFileInfo['tags']['id3v2']) ) {
+		foreach ( $tags as $key => $tag ) {
+			if ( array_key_exists( $key, $ThisFileInfo['tags']['id3v2'] ) ) {
 				$value = sanitize_text_field( $ThisFileInfo['tags']['id3v2'][$key][0] );
 				$tags[$key] = $value;
 			}
 		}
 
-		if ( isset($ThisFileInfo['comments_html']['comment']) ) {
+		if ( isset( $ThisFileInfo['comments_html']['comment'] ) ) {
 			$value = sanitize_text_field( $ThisFileInfo['comments_html']['comment'][0] );
 			$tags['comment'] = $value;
 		}
 
 		// see en.wikipedia.org/wiki/ID3
 		// subtitle tit3 in id3v2 and tsst in id3v4
-		if (! empty( $ThisFileInfo['id3v2']['TIT3'][0]['data'] ) ) {
+		if ( ! empty( $ThisFileInfo['id3v2']['TIT3'][0]['data'] ) ) {
 			$tags['subtitle'] = sanitize_text_field( $ThisFileInfo['id3v2']['TIT3'][0]['data'] );
 		}
 		else if ( ! empty( $ThisFileInfo['id3v2']['TSST'][0]['data'] ) ) {
-			$tags['subtitle'] = sanitize_text_field( $ThisFileInfo['id3v2']['TSST'][0]['data'] );
-		}
+				$tags['subtitle'] = sanitize_text_field( $ThisFileInfo['id3v2']['TSST'][0]['data'] );
+			}
 		else {
 			$tags['subtitle'] = '';
 		}
@@ -881,13 +877,13 @@ class SermonManagerImport {
 		$tags['length'] = sanitize_text_field( $ThisFileInfo['playtime_string'] );
 		$tags['size'] = sanitize_text_field( $ThisFileInfo['filesize'] );
 
-		if ( isset($ThisFileInfo['comments']['picture'][0]) ) {
+		if ( isset( $ThisFileInfo['comments']['picture'][0] ) ) {
 			$pictureData = $ThisFileInfo['comments']['picture'][0];
 			$imageinfo = array();
 			//$imagechunkcheck = getid3_lib::GetDataImageSize($pictureData['data'], $imageinfo);
 			$imageWidth = "150"; //$imagechunkcheck[0];
 			$imageHeight = "150"; //$imagechunkcheck[1];
-			$tags['image'] = '<img src="data:'.$pictureData['image_mime'].';base64,'.base64_encode($pictureData['data']).'" width="'.$imageWidth.'" height="'.$imageHeight.'" class="img-polaroid">';
+			$tags['image'] = '<img src="data:'.$pictureData['image_mime'].';base64,'.base64_encode( $pictureData['data'] ).'" width="'.$imageWidth.'" height="'.$imageHeight.'" class="img-polaroid">';
 		}
 
 		return $tags;
@@ -896,37 +892,35 @@ class SermonManagerImport {
 	/**
 	 * Returns the bible book from a well formated bible reference
 	 *
-	 * @param string $text
+	 * @param string  $text
 	 * Well formated bible reference (e.g. John 1, John 1:11, 1 John 5:1-3, 3 Jh 5 )
 	 *
 	 * @since 0.1.0
-	 * 
+	 *
 	 * @return string
 	 * @author khornberg
-	 **/
-	public function get_bible_book( $text )
-	{
-		preg_match('/(^\w{1,3}\s)?\w+/', $text, $matches);
+	 * */
+	public function get_bible_book( $text ) {
+		preg_match( '/(^\w{1,3}\s)?\w+/', $text, $matches );
 
-		return ( isset($matches[0]) ) ? $matches[0] : '';
+		return ( isset( $matches[0] ) ) ? $matches[0] : '';
 	}
 
 	/**
 	 * Returns the service type based on meridiem
 	 *
-	 * @param string text
+	 * @param string  text
 	 *
 	 * @since 0.1.0
-	 * 
+	 *
 	 * @return string
 	 * @author khornberg
-	 **/
-	public function get_service_type( $meridiem )
-	{
+	 * */
+	public function get_service_type( $meridiem ) {
 		if ( $meridiem === 'pm' )
 			return $this->options['pm_service'];
 		else
-			return isset($this->options['am_service']) ? $this->options['am_service'] : null;
+			return isset( $this->options['am_service'] ) ? $this->options['am_service'] : null;
 	}
 
 	/*--------------------------------------------*
@@ -940,8 +934,7 @@ class SermonManagerImport {
 	 * @since  0.2.0
 	 *
 	 */
-	public function set_paths()
-	{
+	public function set_paths() {
 		$uploads_details = wp_upload_dir();
 		$this->folder_path = $uploads_details['basedir'] . '/' . $this->options['upload_folder'];
 		$this->base_path = parse_url( $uploads_details['baseurl'], PHP_URL_PATH );
@@ -951,14 +944,13 @@ class SermonManagerImport {
 	 * Creates a folder based on the path provided
 	 *
 	 * @since 0.1.0
-	 * 
+	 *
 	 */
-	public function create_folder()
-	{
+	public function create_folder() {
 		// check if directory exists and makes it if it isn't
 		if ( !is_dir( $this->folder_path ) ) {
 			if ( !mkdir( $this->folder_path, 0777 ) ) {
-				$this->set_message('<p>Could not make the folder for you to put your files in, please check your permissions. Attempted to create folder at <br /><b>' . $this->folder_path . '</b></p>', 'error');
+				$this->set_message( '<p>Could not make the folder for you to put your files in, please check your permissions. Attempted to create folder at <br /><b>' . $this->folder_path . '</b></p>', 'error' );
 			}
 		}
 	}
@@ -968,28 +960,26 @@ class SermonManagerImport {
 	 * Sets the messages array
 	 *
 	 * @param message as string
-	 * @param type as string
-	 * 
+	 * @param type    as string
+	 *
 	 * Type default is '' for a warning message (yellow)
 	 * Type value of 'error' results in an error message (red)
 	 *
 	 * @since  0.1.0
 	 */
-	public function set_message( $message, $type = 'updated' )
-	{
-		$this->messages[] = array( "message" => $message, "type" => $type);
+	public function set_message( $message, $type = 'updated' ) {
+		$this->messages[] = array( "message" => $message, "type" => $type );
 	}
 
 	/**
 	 * Displays administrative warnings and errors
-	 * 
+	 *
 	 * @since  0.1.0
 	 */
-	public function display_messages()
-	{
+	public function display_messages() {
 		$message_count = count( $this->messages );
 		$i = 0;
-		while ($i < $message_count) {
+		while ( $i < $message_count ) {
 			echo '<div class="' . $this->messages[$i]['type'] . '">' . $this->messages[$i]['message'] . '</div>';
 			$i++;
 		}
@@ -1004,22 +994,20 @@ class SermonManagerImport {
 	 *
 	 * @since    0.2.0
 	 */
-	public function action_replace_thickbox_text()
-	{
+	public function action_replace_thickbox_text() {
 		global $pagenow;
-		if ('media-upload.php' == $pagenow || 'async-upload.php' == $pagenow) {
+		if ( 'media-upload.php' == $pagenow || 'async-upload.php' == $pagenow ) {
 			// Now we'll replace the 'Insert into Post Button' inside Thickbox
 			add_filter( 'gettext', array( $this, 'filter_replace_thickbox_text' ), 1, 3 );
 		}
 	}
 
 	/**
-	* Adds help menus items for Sermon upload
-	*
-	* @since  0.1.0
-	**/
-	public function action_add_help_menu()
-	{
+	 * Adds help menus items for Sermon upload
+	 *
+	 * @since  0.1.0
+	 * */
+	public function action_add_help_menu() {
 		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
 			return;
 		}
@@ -1027,12 +1015,12 @@ class SermonManagerImport {
 		$screen = get_current_screen();
 		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
 			$sermon_help_upload = '<p>' . __( 'Upload a sermon by clicking the "Upload Sermon" button. To finish the upload, in the media upload box, click "Save all changes", "Insert into post" or close the dialog box.' ) . '</p>' .
-				'<p>' . __( 'The sermons will appear in the sermon list area below this help area.') . '</p>' .
+				'<p>' . __( 'The sermons will appear in the sermon list area below this help area.' ) . '</p>' .
 				'<p>' . __( 'Click the "Import" button to publish the individual sermon.' ) . __( ' or click the "Import as draft" button to publish the individual sermon as a draft. The sermon can then be published from the Sermons page.' ) . '</p>'.
 				'<p>' . __( 'Click the "Details" button view the details (Sermon Manager and ID3 information) about the individual sermon.' ) . '</p>'.
 				'<p>' . __( 'Click the "Import all Sermons" button to attempt to publish all sermons. <br /> Depending on your server configuration, your server may stop processing before all the sermons are imported. In this case, refresh the page, click "Import all sermons" again until all sermons are imported.' ) . '</p>';
 
-				$sermon_help_details = '<p>' . __( 'Files are uploaded to ' ) . $this->folder_path . ' and moved on posting to'. $this->base_path . '.</p>' .
+			$sermon_help_details = '<p>' . __( 'Files are uploaded to ' ) . $this->folder_path . ' and moved on posting to'. $this->base_path . '.</p>' .
 				'<p>' . __( 'This plugin only searchs for mp3 files.' ) . '</p>';
 
 			get_current_screen()->add_help_tab( array(
@@ -1060,11 +1048,10 @@ class SermonManagerImport {
 	 *
 	 * @since    0.2.0
 	 */
-	public function filter_replace_thickbox_text( $translated_text, $text, $domain )
-	{
-		if ('Insert into Post' == $text) {
+	public function filter_replace_thickbox_text( $translated_text, $text, $domain ) {
+		if ( 'Insert into Post' == $text ) {
 			$referer = strpos( wp_get_referer(), 'sermon-manager-import' );
-			if ($referer != '') {
+			if ( $referer != '' ) {
 				return __( 'Upload Sermon' );
 			}
 		}
@@ -1073,14 +1060,13 @@ class SermonManagerImport {
 	}
 
 	/**
-	* Changes the location of uploads
-	*
-	* @since 0.1.0
-	* 
-	**/
+	 * Changes the location of uploads
+	 *
+	 * @since 0.1.0
+	 *
+	 * */
 
-	public function filter_sermon_upload_pre_upload( $file )
-	{
+	public function filter_sermon_upload_pre_upload( $file ) {
 		if ( $file['type'] == 'audio/mp3' ) {
 			add_filter( 'upload_dir', array( $this , 'sermon_upload_custom_upload_dir' ) );
 		}
@@ -1088,8 +1074,7 @@ class SermonManagerImport {
 		return $file;
 	}
 
-	public function filter_sermon_upload_post_upload( $file )
-	{
+	public function filter_sermon_upload_post_upload( $file ) {
 		if ( $file['type'] == 'audio/mp3' ) {
 			remove_filter( 'upload_dir', array( $this , 'sermon_upload_custom_upload_dir' ) );
 		}
@@ -1097,8 +1082,7 @@ class SermonManagerImport {
 		return $file;
 	}
 
-	public function sermon_upload_custom_upload_dir( $path )
-	{
+	public function sermon_upload_custom_upload_dir( $path ) {
 		if ( !empty( $path['error'] ) ) { return $path; } //error; do nothing.
 		$customdir      = '/' . $this->options['upload_folder'];
 		$path['path']   = str_replace( $path['subdir'], '', $path['path'] ); //remove default subdir (year/month)
@@ -1117,10 +1101,9 @@ class SermonManagerImport {
 	 * Adds a select query that lets you search for titles more easily using WP Query
 	 *
 	 * @since 0.1.0
-	 *  
+	 *
 	 */
-	public function filter_title_like_posts_where( $where, &$wp_query )
-	{
+	public function filter_title_like_posts_where( $where, &$wp_query ) {
 		global $wpdb;
 		if ( $post_title_like = $wp_query->get( 'post_title_like' ) ) {
 			$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'' .
