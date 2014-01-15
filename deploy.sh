@@ -70,11 +70,8 @@ echo "Ignoring github specific files and deployment script"
 # .git
 # .gitignore" "$SVNPATH/trunk/"
 
-#couldn't get multi line patter above to ignore folder
+#couldn't get multi line patten above to ignore wp-assets folder
 svn propset svn:ignore "wp-assets"$'\n'"deploy.sh"$'\n'"README.md"$'\n'".git"$'\n'".gitignore" "tmp/sermon-manager-import/trunk/"
-
-# one time reset trunk
-# rm -fr "$SVNPATH/trunk/*"
 
 #export git -> SVN
 echo "Exporting the HEAD of master from git to the trunk of SVN"
@@ -98,14 +95,21 @@ cd $SVNPATH/trunk/
 svn status | grep -v "^.[ \t]*\..*" | grep "^?" | awk '{print $2}' | xargs svn add
 svn commit --username=$SVNUSER -m "$COMMITMSG" 
 
-# one time remove added files
-svn del "$SVNPATH/trunk/readme.md" --force
-
 echo "Creating new SVN tag & committing it"
-# cd $SVNPATH
+cd $SVNPATH
 svn copy trunk/ tags/$NEWVERSION1/
 # cd $SVNPATH/tags/$NEWVERSION1
 svn commit --username=$SVNUSER -m "Tagging version $NEWVERSION1"
+
+# Add assets
+if [ -d $GITPATH/wp-assets ] then
+echo "Changing directory to SVN and committing to assets"
+cd $SVNPATH/assets
+cp $GITPATH/wp-assets .
+# Add all new files that are not set to be ignored
+svn status | grep -v "^.[ \t]*\..*" | grep "^?" | awk '{print $2}' | xargs svn add
+svn commit --username=$SVNUSER -m "$COMMITMSG" 
+fi
 
 echo "Removing temporary directory $SVNPATH"
 svn status "$SVNPATH/trunk/" --no-ignore
