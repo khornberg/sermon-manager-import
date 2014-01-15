@@ -49,24 +49,32 @@ if [ -n "$(git status --porcelain)" ]; then
 	echo -e "Enter a commit message for this new version: \c"
 	read COMMITMSG
 	git commit -am "$COMMITMSG"
+else
+    COMMITMSG=$(git log -1 --pretty=%B)
 fi
 
 echo "Tagging new version in git"
 git tag -a "$NEWVERSION1" -m "Tagging version $NEWVERSION1"
 
 echo "Pushing latest commit to origin, with tags"
-git push origin master --dry-run
-git push origin master --tags --dry-run
+git push origin master
+git push origin master --tags
 
 echo 
 echo "Creating local copy of SVN repo ..."
 svn co $SVNURL $SVNPATH
 
 echo "Ignoring github specific files and deployment script"
-svn propset svn:ignore "deploy.sh
-README.md
-.git
-.gitignore" "$SVNPATH/trunk/"
+# svn propset svn:ignore wp-assets "deploy.sh
+# README.md
+# .git
+# .gitignore" "$SVNPATH/trunk/"
+
+#couldn't get multi line patter above to ignore folder
+svn propset svn:ignore "wp-assets"$'\n'"deploy.sh"$'\n'"README.md"$'\n'".git"$'\n'".gitignore" "tmp/sermon-manager-import/trunk/"
+
+# one time reset trunk
+# rm -fr "$SVNPATH/trunk/*"
 
 #export git -> SVN
 echo "Exporting the HEAD of master from git to the trunk of SVN"
@@ -88,15 +96,19 @@ echo "Changing directory to SVN and committing to trunk"
 cd $SVNPATH/trunk/
 # Add all new files that are not set to be ignored
 svn status | grep -v "^.[ \t]*\..*" | grep "^?" | awk '{print $2}' | xargs svn add
-svn commit --username=$SVNUSER -m "$COMMITMSG" --dry-run
+svn commit --username=$SVNUSER -m "$COMMITMSG" 
+
+# one time remove added files
+svn del "$SVNPATH/trunk/readme.md" --force
 
 echo "Creating new SVN tag & committing it"
-cd $SVNPATH
+# cd $SVNPATH
 svn copy trunk/ tags/$NEWVERSION1/
-cd $SVNPATH/tags/$NEWVERSION1
-svn commit --username=$SVNUSER -m "Tagging version $NEWVERSION1" --dry-run
+# cd $SVNPATH/tags/$NEWVERSION1
+svn commit --username=$SVNUSER -m "Tagging version $NEWVERSION1"
 
 echo "Removing temporary directory $SVNPATH"
-# rm -fr $SVNPATH/
+svn status "$SVNPATH/trunk/" --no-ignore
+rm -fr $SVNPATH/
 
 echo "*** FIN ***"

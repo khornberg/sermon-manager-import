@@ -59,6 +59,9 @@ If you want to contribute go to [Github](github.com), fork, and send a pull requ
 
 ## Changelog
 
+### 0.2.3
+* Readme update
+
 ### 0.2.2
 * Sets new podcasting options as of Sermon Manager 1.8
 * Add explanation when files are not imported
