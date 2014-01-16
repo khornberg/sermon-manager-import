@@ -772,9 +772,7 @@ class SermonManagerImport {
 				$this->set_message( 'Sermon already exists: ' . $audio[$this->options['sermon_title']] );
 			}
 		} else {
-			if ( !$title ) {
-				$this->set_message( 'The title for the file ' . $sermon_file_name . 'was not set. This is needed to create a sermon with that title.', 'error' );
-			}
+			$this->set_message( 'The title for the file ' . $file_name . 'was not set. This is needed to create a sermon with that title.', 'error' );
 		}
 	}
 
