@@ -505,7 +505,7 @@ class SermonManagerImport {
 				<dt>Preacher:          </dt><dd>&nbsp;' . $displayPreacher . '</dd>
 				<dt>Sermon Series:     </dt><dd>&nbsp;' . $displaySermonSeries . '</dd>
 				<dt>Sermon Topics:     </dt><dd>&nbsp;' . $displaySermonTopics . '</dd>
-				<dt>Sermon Descrption: </dt><dd>&nbsp;' . $displaySermonDescription . '</dd>
+				<dt>Sermon Description:</dt><dd>&nbsp;' . $displaySermonDescription . '</dd>
 				<dt>Bible Passage:     </dt><dd>&nbsp;' . $displayBiblePassage . '</dd>
 				<dt>Bible Book:        </dt><dd>&nbsp;' . $displayBibleBook . '</dd>
 				<dt>Service Type:      </dt><dd>&nbsp;' . $displayService . '</dd>
