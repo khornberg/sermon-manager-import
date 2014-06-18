@@ -2,11 +2,11 @@
 /**
  * Fired when the plugin is uninstalled.
  *
- * @package   Plugin_Name
- * @author    Your Name <email@example.com>
- * @license   GPL-2.0+
- * @link      http://example.com
- * @copyright 2013 Your Name or Company Name
+ * @package   Sermon Manager Import
+ * @author    Kyle Hornberg
+ * @license   GPLv3
+ * @link      https://github.com/khornberg/sermon-manager-import
+ * @copyright 2013 Kyle Hornberg
  */
 
 // If uninstall, not called from WordPress, then exit

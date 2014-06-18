@@ -331,10 +331,10 @@ class SermonManagerImportSettings {
     }
 
     /**
-     * Use the bible book from the bible passage as the series
+     * Use the Bible book from the Bible passage as the series
      */
     public function bible_book_series_callback( $args ) {
-        echo '<input type="checkbox" id="'.$args[0].'" name="smi_options['.$args[0].']"  value="1" '. checked( 1, esc_attr( $this->options[$args[0]] ), false ) . '" /> Use the bible book from the bible passage as the series.';
+        echo '<input type="checkbox" id="'.$args[0].'" name="smi_options['.$args[0].']"  value="1" '. checked( 1, esc_attr( $this->options[$args[0]] ), false ) . '" /> Use the Bible book from the Bible passage as the series.';
     }
 
     public function upload_folder_callback( $args ) {
