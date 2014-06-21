@@ -680,8 +680,11 @@ class SermonManagerImport {
 				// Insert the post!!
 				$post_id = wp_insert_post( $my_post );
 
-				// move the file to the right month/date directory in wordpress
+				// upload the file to the right month/date directory in wordpress
 				$wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
+
+				// delete the file from the upload directory
+				unlink($file_path);
 
 				// error uploading file, abort
 				if ( ! empty( $wp_file_info['error'] ) ) {
