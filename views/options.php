@@ -377,7 +377,7 @@ class SermonManagerImportSettings {
         }
         $options .= '</select>';
 
-        $options .= '<p>Sets the AM merdiem to the selected service type. So when a sermon is imported and the date includes a merdiem determined to be AM, the selected service type will be applied.</p>';
+        $options .= '<p>Sets the AM meridiem to the selected service type. When a sermon is imported and the date includes a meridiem determined to be AM, the selected service type will be applied.</p>';
 
         echo $options;
     }
@@ -391,7 +391,7 @@ class SermonManagerImportSettings {
         }
         $options .= '</select>';
 
-        $options .= '<p>Sets the PM merdiem to the selected service type. So when a sermon is imported and the date includes a merdiem determined to be PM, the selected service type will be applied.</p>';
+        $options .= '<p>Sets the PM meridiem to the selected service type. When a sermon is imported and the date includes a meridiem determined to be PM, the selected service type will be applied.</p>';
 
         echo $options;
     }
