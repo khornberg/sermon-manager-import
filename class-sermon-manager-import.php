@@ -488,7 +488,7 @@ class SermonManagerImport {
 		$displayYear    = empty( $id3['year'] ) ? '&nbsp;' : $id3['year'];
 		$displayLength  = empty( $id3['length'] ) ? '&nbsp;' : $id3['length'];
 		$displayBitrate = empty( $id3['bitrate'] ) ? '&nbsp;' : $id3['bitrate'];
-		$displayImage   = empty( $id3['image'] ) ? 'No image embded' : $id3['image'];
+		$displayImage   = empty( $id3['image'] ) ? 'No image embedded' : $id3['image'];
 		$fileUnique     = str_replace( '.', '_', str_replace( ' ', '_', $file ) );
 
 		$info = '<li class="sermon_dl_item">
@@ -680,8 +680,11 @@ class SermonManagerImport {
 				// Insert the post!!
 				$post_id = wp_insert_post( $my_post );
 
-				// move the file to the right month/date directory in wordpress
+				// upload the file to the right month/date directory in wordpress
 				$wp_file_info = wp_upload_bits( basename( $file_path ), null, file_get_contents( $file_path ) );
+
+				// delete the file from the upload directory
+				unlink($file_path);
 
 				// error uploading file, abort
 				if ( ! empty( $wp_file_info['error'] ) ) {
@@ -888,10 +891,10 @@ class SermonManagerImport {
 	}
 
 	/**
-	 * Returns the bible book from a well formated bible reference
+	 * Returns the Bible book from a well-formated Bible reference
 	 *
 	 * @param string  $text
-	 * Well formated bible reference (e.g. John 1, John 1:11, 1 John 5:1-3, 3 Jh 5 )
+	 * Well formated Bible reference (e.g. John 1, John 1:11, 1 John 5:1-3, 3 Jh 5 )
 	 *
 	 * @since 0.1.0
 	 *
@@ -1001,7 +1004,7 @@ class SermonManagerImport {
 	}
 
 	/**
-	 * Adds help menus items for Sermon upload
+	 * Adds help menu items for Sermon upload
 	 *
 	 * @since  0.1.0
 	 * */

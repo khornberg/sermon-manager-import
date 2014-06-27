@@ -103,7 +103,7 @@ class FindDate {
 				$this->day = $matches_day[1];
 		}
 
-		//Match Year if not already setted:
+		//Match Year if not already set:
 		if ( empty( $this->year ) ) {
 			preg_match( '/[0-9]{4}/', $string, $matches_year );
 			if ( $matches_year[0] )
