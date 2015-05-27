@@ -6,7 +6,7 @@
  * @author    Kyle Hornberg
  * @license   GPLv3
  * @link      https://github.com/khornberg/sermon-manager-import
- * @copyright 2013 Kyle Hornberg
+ * @copyright 2013-2015 Kyle Hornberg
  */
 
 /**
