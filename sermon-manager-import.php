@@ -6,7 +6,7 @@
  * @author    Kyle Hornberg
  * @license   GPLv3
  * @link      https://github.com/khornberg/sermon-manager-import
- * @copyright 2013 Kyle Hornberg
+ * @copyright 2013-2015 Kyle Hornberg
  *
  * @wordpress-plugin
  * Plugin Name: Sermon Manager Import
@@ -21,7 +21,7 @@
  * License URI: http://www.gnu.org/licenses/gpl.txt
  * Domain Path: /languages
  *
- * Copyright 2013
+ * Copyright 2013-2015
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License, version 3, as
