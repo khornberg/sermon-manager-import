@@ -629,7 +629,7 @@ class SermonManagerImport {
 		if ( $this->options['date'] === '' )
 			$date = $this->get_dates( $file_name, $file_name );
 		else
-			$date = $this->get_dates( $audio[$this->options['date']] );
+			$date = $this->get_dates( $audio[$this->options['date']], $file_name );
 
 		// check if we have a title
 		if ( $audio[$this->options['sermon_title']] ) {
@@ -849,8 +849,12 @@ class SermonManagerImport {
 
 		$tags = array( 'title' => sanitize_text_field( $ThisFileInfo['filename'] ), 'genre' => '', 'artist' => '', 'album' => '', 'year' => '' );
 
+		if ( !isset( $ThisFileInfo['tags']['id3v2'] ) ) {
+			$this->set_message( $ThisFileInfo['filename'] . ' does not seem to have ID3 version 2 tags.', 'error' );
+		}
+
 		foreach ( $tags as $key => $tag ) {
-			if ( array_key_exists( $key, $ThisFileInfo['tags']['id3v2'] ) ) {
+			if ( isset( $ThisFileInfo['tags']['id3v2'] ) && array_key_exists( $key, $ThisFileInfo['tags']['id3v2'] ) ) {
 				$value = sanitize_text_field( $ThisFileInfo['tags']['id3v2'][$key][0] );
 				$tags[$key] = $value;
 			}
