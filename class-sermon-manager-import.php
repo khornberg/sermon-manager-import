@@ -753,7 +753,8 @@ class SermonManagerImport {
 				// This is for embeded images and attached files
 				// you must first include the image.php file
 				// for the function wp_generate_attachment_metadata() to work
-				require_once ABSPATH . 'wp-admin/includes/image.php';
+				require_once ABSPATH . '/wp-admin/includes/media.php';
+				require_once ABSPATH . '/wp-admin/includes/image.php';
 				$attach_data = wp_generate_attachment_metadata( $attach_id, $wp_file_info['file'] );
 				wp_update_attachment_metadata( $attach_id, $attach_data );
 
