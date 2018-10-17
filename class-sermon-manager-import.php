@@ -1120,5 +1120,3 @@ class SermonManagerImport {
 	}
 
 }
-
-//sdg
