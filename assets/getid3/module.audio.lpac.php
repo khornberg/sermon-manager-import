@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -21,10 +22,10 @@ class getid3_lpac extends getid3_handler
 	public function Analyze() {
 		$info = &$this->getid3->info;
 
-		fseek($this->getid3->fp, $info['avdataoffset'], SEEK_SET);
-		$LPACheader = fread($this->getid3->fp, 14);
+		$this->fseek($info['avdataoffset']);
+		$LPACheader = $this->fread(14);
 		if (substr($LPACheader, 0, 4) != 'LPAC') {
-			$info['error'][] = 'Expected "LPAC" at offset '.$info['avdataoffset'].', found "'.$StreamMarker.'"';
+			$this->error('Expected "LPAC" at offset '.$info['avdataoffset'].', found "'.$StreamMarker.'"');
 			return false;
 		}
 		$info['avdataoffset'] += 14;
@@ -45,7 +46,7 @@ class getid3_lpac extends getid3_handler
 		$info['lpac']['flags']['16_bit']  = (bool) ($flags['audio_type'] & 0x01);
 
 		if ($info['lpac']['flags']['24_bit'] && $info['lpac']['flags']['16_bit']) {
-			$info['warning'][] = '24-bit and 16-bit flags cannot both be set';
+			$this->warning('24-bit and 16-bit flags cannot both be set');
 		}
 
 		$info['lpac']['flags']['fast_compress']             =  (bool) ($flags['parameters'] & 0x40000000);
@@ -58,20 +59,20 @@ class getid3_lpac extends getid3_handler
 		$info['lpac']['max_prediction_order']               =         ($flags['parameters'] & 0x0000003F);
 
 		if ($info['lpac']['flags']['fast_compress'] && ($info['lpac']['max_prediction_order'] != 3)) {
-			$info['warning'][] = 'max_prediction_order expected to be "3" if fast_compress is true, actual value is "'.$info['lpac']['max_prediction_order'].'"';
+			$this->warning('max_prediction_order expected to be "3" if fast_compress is true, actual value is "'.$info['lpac']['max_prediction_order'].'"');
 		}
 		switch ($info['lpac']['file_version']) {
 			case 6:
 				if ($info['lpac']['flags']['adaptive_quantization']) {
-					$info['warning'][] = 'adaptive_quantization expected to be false in LPAC file stucture v6, actually true';
+					$this->warning('adaptive_quantization expected to be false in LPAC file stucture v6, actually true');
 				}
 				if ($info['lpac']['quantization'] != 20) {
-					$info['warning'][] = 'Quantization expected to be 20 in LPAC file stucture v6, actually '.$info['lpac']['flags']['Q'];
+					$this->warning('Quantization expected to be 20 in LPAC file stucture v6, actually '.$info['lpac']['flags']['Q']);
 				}
 				break;
 
 			default:
-				//$info['warning'][] = 'This version of getID3() ['.$this->getid3->version().'] only supports LPAC file format version 6, this file is version '.$info['lpac']['file_version'].' - please report to info@getid3.org';
+				//$this->warning('This version of getID3() ['.$this->getid3->version().'] only supports LPAC file format version 6, this file is version '.$info['lpac']['file_version'].' - please report to info@getid3.org');
 				break;
 		}
 

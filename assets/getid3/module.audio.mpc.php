@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -29,8 +30,8 @@ class getid3_mpc extends getid3_handler
 		$info['audio']['channels']        = 2;  // up to SV7 the format appears to have been hardcoded for stereo only
 		$info['audio']['lossless']        = false;
 
-		fseek($this->getid3->fp, $info['avdataoffset'], SEEK_SET);
-		$MPCheaderData = fread($this->getid3->fp, 4);
+		$this->fseek($info['avdataoffset']);
+		$MPCheaderData = $this->fread(4);
 		$info['mpc']['header']['preamble'] = substr($MPCheaderData, 0, 4); // should be 'MPCK' (SV8) or 'MP+' (SV7), otherwise possible stream data (SV4-SV6)
 		if (preg_match('#^MPCK#', $info['mpc']['header']['preamble'])) {
 
@@ -49,7 +50,7 @@ class getid3_mpc extends getid3_handler
 
 		} else {
 
-			$info['error'][] = 'Expecting "MP+" or "MPCK" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes(substr($MPCheaderData, 0, 4)).'"';
+			$this->error('Expecting "MP+" or "MPCK" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes(substr($MPCheaderData, 0, 4)).'"');
 			unset($info['fileformat']);
 			unset($info['mpc']);
 			return false;
@@ -69,7 +70,7 @@ class getid3_mpc extends getid3_handler
 		$keyNameSize            = 2;
 		$maxHandledPacketLength = 9; // specs say: "n*8; 0 < n < 10"
 
-		$offset = ftell($this->getid3->fp);
+		$offset = $this->ftell();
 		while ($offset < $info['avdataend']) {
 			$thisPacket = array();
 			$thisPacket['offset'] = $offset;
@@ -77,18 +78,18 @@ class getid3_mpc extends getid3_handler
 
 			// Size is a variable-size field, could be 1-4 bytes (possibly more?)
 			// read enough data in and figure out the exact size later
-			$MPCheaderData = fread($this->getid3->fp, $keyNameSize + $maxHandledPacketLength);
+			$MPCheaderData = $this->fread($keyNameSize + $maxHandledPacketLength);
 			$packet_offset += $keyNameSize;
 			$thisPacket['key']      = substr($MPCheaderData, 0, $keyNameSize);
 			$thisPacket['key_name'] = $this->MPCsv8PacketName($thisPacket['key']);
 			if ($thisPacket['key'] == $thisPacket['key_name']) {
-				$info['error'][] = 'Found unexpected key value "'.$thisPacket['key'].'" at offset '.$thisPacket['offset'];
+				$this->error('Found unexpected key value "'.$thisPacket['key'].'" at offset '.$thisPacket['offset']);
 				return false;
 			}
 			$packetLength = 0;
 			$thisPacket['packet_size'] = $this->SV8variableLengthInteger(substr($MPCheaderData, $keyNameSize), $packetLength); // includes keyname and packet_size field
 			if ($thisPacket['packet_size'] === false) {
-				$info['error'][] = 'Did not find expected packet length within '.$maxHandledPacketLength.' bytes at offset '.($thisPacket['offset'] + $keyNameSize);
+				$this->error('Did not find expected packet length within '.$maxHandledPacketLength.' bytes at offset '.($thisPacket['offset'] + $keyNameSize));
 				return false;
 			}
 			$packet_offset += $packetLength;
@@ -98,7 +99,7 @@ class getid3_mpc extends getid3_handler
 				case 'SH': // Stream Header
 					$moreBytesToRead = $thisPacket['packet_size'] - $keyNameSize - $maxHandledPacketLength;
 					if ($moreBytesToRead > 0) {
-						$MPCheaderData .= fread($this->getid3->fp, $moreBytesToRead);
+						$MPCheaderData .= $this->fread($moreBytesToRead);
 					}
 					$thisPacket['crc']               =       getid3_lib::BigEndian2Int(substr($MPCheaderData, $packet_offset, 4));
 					$packet_offset += 4;
@@ -136,7 +137,7 @@ class getid3_mpc extends getid3_handler
 				case 'RG': // Replay Gain
 					$moreBytesToRead = $thisPacket['packet_size'] - $keyNameSize - $maxHandledPacketLength;
 					if ($moreBytesToRead > 0) {
-						$MPCheaderData .= fread($this->getid3->fp, $moreBytesToRead);
+						$MPCheaderData .= $this->fread($moreBytesToRead);
 					}
 					$thisPacket['replaygain_version']     =       getid3_lib::BigEndian2Int(substr($MPCheaderData, $packet_offset, 1));
 					$packet_offset += 1;
@@ -158,7 +159,7 @@ class getid3_mpc extends getid3_handler
 				case 'EI': // Encoder Info
 					$moreBytesToRead = $thisPacket['packet_size'] - $keyNameSize - $maxHandledPacketLength;
 					if ($moreBytesToRead > 0) {
-						$MPCheaderData .= fread($this->getid3->fp, $moreBytesToRead);
+						$MPCheaderData .= $this->fread($moreBytesToRead);
 					}
 					$profile_pns                 = getid3_lib::BigEndian2Int(substr($MPCheaderData, $packet_offset, 1));
 					$packet_offset += 1;
@@ -194,14 +195,14 @@ class getid3_mpc extends getid3_handler
 					break;
 
 				default:
-					$info['error'][] = 'Found unhandled key type "'.$thisPacket['key'].'" at offset '.$thisPacket['offset'];
+					$this->error('Found unhandled key type "'.$thisPacket['key'].'" at offset '.$thisPacket['offset']);
 					return false;
 					break;
 			}
 			if (!empty($thisPacket)) {
 				$info['mpc']['packets'][] = $thisPacket;
 			}
-			fseek($this->getid3->fp, $offset);
+			$this->fseek($offset);
 		}
 		$thisfile_mpc_header['size'] = $offset;
 		return true;
@@ -217,7 +218,7 @@ class getid3_mpc extends getid3_handler
 
 		$thisfile_mpc_header['size'] = 28;
 		$MPCheaderData  = $info['mpc']['header']['preamble'];
-		$MPCheaderData .= fread($this->getid3->fp, $thisfile_mpc_header['size'] - strlen($info['mpc']['header']['preamble']));
+		$MPCheaderData .= $this->fread($thisfile_mpc_header['size'] - strlen($info['mpc']['header']['preamble']));
 		$offset = strlen('MP+');
 
 		$StreamVersionByte                           = getid3_lib::LittleEndian2Int(substr($MPCheaderData, $offset, 1));
@@ -228,7 +229,7 @@ class getid3_mpc extends getid3_handler
 		$offset += 4;
 
 		if ($thisfile_mpc_header['stream_version_major'] != 7) {
-			$info['error'][] = 'Only Musepack SV7 supported (this file claims to be v'.$thisfile_mpc_header['stream_version_major'].')';
+			$this->error('Only Musepack SV7 supported (this file claims to be v'.$thisfile_mpc_header['stream_version_major'].')');
 			return false;
 		}
 
@@ -267,7 +268,7 @@ class getid3_mpc extends getid3_handler
 		$thisfile_mpc_header['profile']     = $this->MPCprofileNameLookup($thisfile_mpc_header['raw']['profile']);
 		$thisfile_mpc_header['sample_rate'] = $this->MPCfrequencyLookup($thisfile_mpc_header['raw']['sample_rate']);
 		if ($thisfile_mpc_header['sample_rate'] == 0) {
-			$info['error'][] = 'Corrupt MPC file: frequency == zero';
+			$this->error('Corrupt MPC file: frequency == zero');
 			return false;
 		}
 		$info['audio']['sample_rate'] = $thisfile_mpc_header['sample_rate'];
@@ -275,7 +276,7 @@ class getid3_mpc extends getid3_handler
 
 		$info['playtime_seconds']     = ($thisfile_mpc_header['samples'] / $info['audio']['channels']) / $info['audio']['sample_rate'];
 		if ($info['playtime_seconds'] == 0) {
-			$info['error'][] = 'Corrupt MPC file: playtime_seconds == zero';
+			$this->error('Corrupt MPC file: playtime_seconds == zero');
 			return false;
 		}
 
@@ -329,8 +330,8 @@ class getid3_mpc extends getid3_handler
 		$offset = 0;
 
 		$thisfile_mpc_header['size'] = 8;
-		fseek($this->getid3->fp, $info['avdataoffset'], SEEK_SET);
-		$MPCheaderData = fread($this->getid3->fp, $thisfile_mpc_header['size']);
+		$this->fseek($info['avdataoffset']);
+		$MPCheaderData = $this->fread($thisfile_mpc_header['size']);
 
 		// add size of file header to avdataoffset - calc bitrate correctly + MD5 data
 		$info['avdataoffset'] += $thisfile_mpc_header['size'];
@@ -376,7 +377,7 @@ class getid3_mpc extends getid3_handler
 		}
 
 		if (($thisfile_mpc_header['stream_version_major'] > 4) && ($thisfile_mpc_header['block_size'] != 1)) {
-			$info['warning'][] = 'Block size expected to be 1, actual value found: '.$thisfile_mpc_header['block_size'];
+			$this->warning('Block size expected to be 1, actual value found: '.$thisfile_mpc_header['block_size']);
 		}
 
 		$thisfile_mpc_header['sample_rate']   = 44100; // AB: used by all files up to SV7

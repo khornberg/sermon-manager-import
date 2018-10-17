@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -35,13 +36,13 @@ class getid3_rar extends getid3_handler
 					rar_close($rp);
 					return true;
 				} else {
-					$info['error'][] = 'failed to rar_open('.$info['filename'].')';
+					$this->error('failed to rar_open('.$info['filename'].')');
 				}
 			} else {
-				$info['error'][] = 'RAR support does not appear to be available in this PHP installation';
+				$this->error('RAR support does not appear to be available in this PHP installation');
 			}
 		} else {
-			$info['error'][] = 'PHP-RAR processing has been disabled (set $getid3_rar->option_use_rar_extension=true to enable)';
+			$this->error('PHP-RAR processing has been disabled (set $getid3_rar->option_use_rar_extension=true to enable)');
 		}
 		return false;
 

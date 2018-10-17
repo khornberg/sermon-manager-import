@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -20,12 +21,12 @@ class getid3_au extends getid3_handler
 	public function Analyze() {
 		$info = &$this->getid3->info;
 
-		fseek($this->getid3->fp, $info['avdataoffset'], SEEK_SET);
-		$AUheader  = fread($this->getid3->fp, 8);
+		$this->fseek($info['avdataoffset']);
+		$AUheader  = $this->fread(8);
 
 		$magic = '.snd';
 		if (substr($AUheader, 0, 4) != $magic) {
-			$info['error'][] = 'Expecting "'.getid3_lib::PrintHexBytes($magic).'" (".snd") at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes(substr($AUheader, 0, 4)).'"';
+			$this->error('Expecting "'.getid3_lib::PrintHexBytes($magic).'" (".snd") at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes(substr($AUheader, 0, 4)).'"');
 			return false;
 		}
 
@@ -39,7 +40,7 @@ class getid3_au extends getid3_handler
 		$thisfile_au['encoding']               = 'ISO-8859-1';
 
 		$thisfile_au['header_length']   = getid3_lib::BigEndian2Int(substr($AUheader,  4, 4));
-		$AUheader .= fread($this->getid3->fp, $thisfile_au['header_length'] - 8);
+		$AUheader .= $this->fread($thisfile_au['header_length'] - 8);
 		$info['avdataoffset'] += $thisfile_au['header_length'];
 
 		$thisfile_au['data_size']             = getid3_lib::BigEndian2Int(substr($AUheader,  8, 4));
@@ -60,7 +61,7 @@ class getid3_au extends getid3_handler
 		$info['audio']['channels']     = $thisfile_au['channels'];
 
 		if (($info['avdataoffset'] + $thisfile_au['data_size']) > $info['avdataend']) {
-			$info['warning'][] = 'Possible truncated file - expecting "'.$thisfile_au['data_size'].'" bytes of audio data, only found '.($info['avdataend'] - $info['avdataoffset']).' bytes"';
+			$this->warning('Possible truncated file - expecting "'.$thisfile_au['data_size'].'" bytes of audio data, only found '.($info['avdataend'] - $info['avdataoffset']).' bytes"');
 		}
 
 		$info['playtime_seconds'] = $thisfile_au['data_size'] / ($thisfile_au['sample_rate'] * $thisfile_au['channels'] * ($thisfile_au['used_bits_per_sample'] / 8));
