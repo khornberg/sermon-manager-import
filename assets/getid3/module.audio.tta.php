@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -25,13 +26,13 @@ class getid3_tta extends getid3_handler
 		$info['audio']['lossless']     = true;
 		$info['audio']['bitrate_mode'] = 'vbr';
 
-		fseek($this->getid3->fp, $info['avdataoffset'], SEEK_SET);
-		$ttaheader = fread($this->getid3->fp, 26);
+		$this->fseek($info['avdataoffset']);
+		$ttaheader = $this->fread(26);
 
 		$info['tta']['magic'] = substr($ttaheader, 0, 3);
 		$magic = 'TTA';
 		if ($info['tta']['magic'] != $magic) {
-			$info['error'][] = 'Expecting "'.getid3_lib::PrintHexBytes($magic).'" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($info['tta']['magic']).'"';
+			$this->error('Expecting "'.getid3_lib::PrintHexBytes($magic).'" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($info['tta']['magic']).'"');
 			unset($info['fileformat']);
 			unset($info['audio']);
 			unset($info['tta']);
@@ -89,7 +90,7 @@ class getid3_tta extends getid3_handler
 				break;
 
 			default:
-				$info['error'][] = 'This version of getID3() ['.$this->getid3->version().'] only knows how to handle TTA v1 and v2 - it may not work correctly with this file which appears to be TTA v'.$ttaheader{3};
+				$this->error('This version of getID3() ['.$this->getid3->version().'] only knows how to handle TTA v1 and v2 - it may not work correctly with this file which appears to be TTA v'.$ttaheader{3});
 				return false;
 				break;
 		}

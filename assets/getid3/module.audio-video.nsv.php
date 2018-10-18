@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -20,8 +21,8 @@ class getid3_nsv extends getid3_handler
 	public function Analyze() {
 		$info = &$this->getid3->info;
 
-		fseek($this->getid3->fp, $info['avdataoffset'], SEEK_SET);
-		$NSVheader = fread($this->getid3->fp, 4);
+		$this->fseek($info['avdataoffset']);
+		$NSVheader = $this->fread(4);
 
 		switch ($NSVheader) {
 			case 'NSVs':
@@ -46,13 +47,13 @@ class getid3_nsv extends getid3_handler
 				break;
 
 			default:
-				$info['error'][] = 'Expecting "NSVs" or "NSVf" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($NSVheader).'"';
+				$this->error('Expecting "NSVs" or "NSVf" at offset '.$info['avdataoffset'].', found "'.getid3_lib::PrintHexBytes($NSVheader).'"');
 				return false;
 				break;
 		}
 
 		if (!isset($info['nsv']['NSVf'])) {
-			$info['warning'][] = 'NSVf header not present - cannot calculate playtime or bitrate';
+			$this->warning('NSVf header not present - cannot calculate playtime or bitrate');
 		}
 
 		return true;
@@ -60,15 +61,15 @@ class getid3_nsv extends getid3_handler
 
 	public function getNSVsHeaderFilepointer($fileoffset) {
 		$info = &$this->getid3->info;
-		fseek($this->getid3->fp, $fileoffset, SEEK_SET);
-		$NSVsheader = fread($this->getid3->fp, 28);
+		$this->fseek($fileoffset);
+		$NSVsheader = $this->fread(28);
 		$offset = 0;
 
 		$info['nsv']['NSVs']['identifier']      =                  substr($NSVsheader, $offset, 4);
 		$offset += 4;
 
 		if ($info['nsv']['NSVs']['identifier'] != 'NSVs') {
-			$info['error'][] = 'expected "NSVs" at offset ('.$fileoffset.'), found "'.$info['nsv']['NSVs']['identifier'].'" instead';
+			$this->error('expected "NSVs" at offset ('.$fileoffset.'), found "'.$info['nsv']['NSVs']['identifier'].'" instead');
 			unset($info['nsv']['NSVs']);
 			return false;
 		}
@@ -133,15 +134,15 @@ class getid3_nsv extends getid3_handler
 
 	public function getNSVfHeaderFilepointer($fileoffset, $getTOCoffsets=false) {
 		$info = &$this->getid3->info;
-		fseek($this->getid3->fp, $fileoffset, SEEK_SET);
-		$NSVfheader = fread($this->getid3->fp, 28);
+		$this->fseek($fileoffset);
+		$NSVfheader = $this->fread(28);
 		$offset = 0;
 
 		$info['nsv']['NSVf']['identifier']    =                  substr($NSVfheader, $offset, 4);
 		$offset += 4;
 
 		if ($info['nsv']['NSVf']['identifier'] != 'NSVf') {
-			$info['error'][] = 'expected "NSVf" at offset ('.$fileoffset.'), found "'.$info['nsv']['NSVf']['identifier'].'" instead';
+			$this->error('expected "NSVf" at offset ('.$fileoffset.'), found "'.$info['nsv']['NSVf']['identifier'].'" instead');
 			unset($info['nsv']['NSVf']);
 			return false;
 		}
@@ -154,7 +155,7 @@ class getid3_nsv extends getid3_handler
 		$offset += 4;
 
 		if ($info['nsv']['NSVf']['file_size'] > $info['avdataend']) {
-			$info['warning'][] = 'truncated file - NSVf header indicates '.$info['nsv']['NSVf']['file_size'].' bytes, file actually '.$info['avdataend'].' bytes';
+			$this->warning('truncated file - NSVf header indicates '.$info['nsv']['NSVf']['file_size'].' bytes, file actually '.$info['avdataend'].' bytes');
 		}
 
 		$info['nsv']['NSVf']['playtime_ms']   = getid3_lib::LittleEndian2Int(substr($NSVfheader, $offset, 4));
@@ -167,11 +168,11 @@ class getid3_nsv extends getid3_handler
 		$offset += 4;
 
 		if ($info['nsv']['NSVf']['playtime_ms'] == 0) {
-			$info['error'][] = 'Corrupt NSV file: NSVf.playtime_ms == zero';
+			$this->error('Corrupt NSV file: NSVf.playtime_ms == zero');
 			return false;
 		}
 
-		$NSVfheader .= fread($this->getid3->fp, $info['nsv']['NSVf']['meta_size'] + (4 * $info['nsv']['NSVf']['TOC_entries_1']) + (4 * $info['nsv']['NSVf']['TOC_entries_2']));
+		$NSVfheader .= $this->fread($info['nsv']['NSVf']['meta_size'] + (4 * $info['nsv']['NSVf']['TOC_entries_1']) + (4 * $info['nsv']['NSVf']['TOC_entries_2']));
 		$NSVfheaderlength = strlen($NSVfheader);
 		$info['nsv']['NSVf']['metadata']      =                  substr($NSVfheader, $offset, $info['nsv']['NSVf']['meta_size']);
 		$offset += $info['nsv']['NSVf']['meta_size'];

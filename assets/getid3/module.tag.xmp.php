@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -14,7 +15,7 @@
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // Module originally written [2009-Mar-26] by                  //
-//      Nigel Barnes <ngbarnesØhotmail*com>                    //
+//      Nigel Barnes <ngbarnesÃ˜hotmail*com>                    //
 // Bundled into getID3 with permission                         //
 //   called by getID3 in module.graphic.jpg.php                //
 //                                                            ///
@@ -398,7 +399,7 @@ class Image_XMP
 	*
 	* @param string - Name of the image file to access and extract XMP information from.
 	*/
-	public function Image_XMP($sFilename)
+	public function __construct($sFilename)
 	{
 		$this->_sFilename = $sFilename;
 

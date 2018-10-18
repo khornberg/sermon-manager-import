@@ -3,6 +3,7 @@
 /// getID3() by James Heinrich <info@getid3.org>               //
 //  available at http://getid3.sourceforge.net                 //
 //            or http://www.getid3.org                         //
+//          also https://github.com/JamesHeinrich/getID3       //
 /////////////////////////////////////////////////////////////////
 // See readme.txt for more details                             //
 /////////////////////////////////////////////////////////////////
@@ -14,7 +15,7 @@
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // Module originally written by                                //
-//      Mike Mozolin <teddybearØmail*ru>                       //
+//      Mike Mozolin <teddybearÃ˜mail*ru>                       //
 //                                                             //
 /////////////////////////////////////////////////////////////////
 
@@ -35,12 +36,12 @@ class getid3_gzip extends getid3_handler {
 		//|ID1|ID2|CM |FLG|     MTIME     |XFL|OS |
 		//+---+---+---+---+---+---+---+---+---+---+
 
-		if ($info['filesize'] > $info['php_memory_limit']) {
-			$info['error'][] = 'File is too large ('.number_format($info['filesize']).' bytes) to read into memory (limit: '.number_format($info['php_memory_limit'] / 1048576).'MB)';
+		if ($info['php_memory_limit'] && ($info['filesize'] > $info['php_memory_limit'])) {
+			$this->error('File is too large ('.number_format($info['filesize']).' bytes) to read into memory (limit: '.number_format($info['php_memory_limit'] / 1048576).'MB)');
 			return false;
 		}
-		fseek($this->getid3->fp, 0);
-		$buffer = fread($this->getid3->fp, $info['filesize']);
+		$this->fseek(0);
+		$buffer = $this->fread($info['filesize']);
 
 		$arr_members = explode("\x1F\x8B\x08", $buffer);
 		while (true) {
@@ -55,7 +56,7 @@ class getid3_gzip extends getid3_handler {
 				$attr = unpack($unpack_header, substr($buf, 0, $start_length));
 				if (!$this->get_os_type(ord($attr['os']))) {
 					// Merge member with previous if wrong OS type
-					$arr_members[$i - 1] .= $buf;
+					$arr_members[($i - 1)] .= $buf;
 					$arr_members[$i] = '';
 					$is_wrong_members = true;
 					continue;
@@ -96,7 +97,7 @@ class getid3_gzip extends getid3_handler {
 
 			$thisInfo['os'] = $this->get_os_type($thisInfo['raw']['os']);
 			if (!$thisInfo['os']) {
-				$info['error'][] = 'Read error on gzip file';
+				$this->error('Read error on gzip file');
 				return false;
 			}
 
@@ -214,7 +215,7 @@ class getid3_gzip extends getid3_handler {
 							if (file_exists(GETID3_INCLUDEPATH.$determined_format['include']) && include_once(GETID3_INCLUDEPATH.$determined_format['include'])) {
 								if (($temp_tar_filename = tempnam(GETID3_TEMP_DIR, 'getID3')) === false) {
 									// can't find anywhere to create a temp file, abort
-									$info['error'][] = 'Unable to create temp file to parse TAR inside GZIP file';
+									$this->error('Unable to create temp file to parse TAR inside GZIP file');
 									break;
 								}
 								if ($fp_temp_tar = fopen($temp_tar_filename, 'w+b')) {
@@ -228,7 +229,7 @@ class getid3_gzip extends getid3_handler {
 									unset($getid3_temp, $getid3_tar);
 									unlink($temp_tar_filename);
 								} else {
-									$info['error'][] = 'Unable to fopen() temp file to parse TAR inside GZIP file';
+									$this->error('Unable to fopen() temp file to parse TAR inside GZIP file');
 									break;
 								}
 							}
