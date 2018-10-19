@@ -1160,8 +1160,10 @@ class SermonManagerImport {
 	/* to automatically post the imported sermons. So that you have an automatism sermon post */
 	/* Example: Create a WP-Page URL.com/import-sermons-automatism with the shortcode [import_all_sermons] and call the URL
 	/*          with your script after pushing the new sermon in the import-Folder. */
-	function import_all_sermons() {
-		$that = SermonManagerImport::get_instance();
-		$that->call_import_function();
+	if(!function_exists('import_all_sermons')){
+		function import_all_sermons() {
+			$that = SermonManagerImport::get_instance();
+			$that->call_import_function();
+		}
 	}
 	add_shortcode( 'import_all_sermons', 'import_all_sermons' );
