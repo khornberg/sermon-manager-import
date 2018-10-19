@@ -3,7 +3,7 @@ Contributors: khornberg
 Tags: sermon, sermon manager, mp3, podcasting, id3, podcast, podcaster, audio, music, spokenword  
 Requires at least: 3.6  
 Tested up to: 4.9.5   
-Stable tag: 0.2.4 
+Stable tag: 0.2.5
 License: GPLv3  
 
 Imports sermons into Sermon Manager using ID3 information.
@@ -58,6 +58,12 @@ If you want to contribute go to [Github](https://github.com/khornberg/sermon-man
 - Import other types of audio files
 
 ## Changelog
+
+### 0.2.5
+* Fixed some PHP-Issues
+* Updated ID3-Code to newest Version
+* Added compatibility to PHP 7
+* Added possibility to call the import-function via shortcode. Just create a page and add [import_all_sermons]. After pushing a new mp3-File to the import-Folder, simply open the created page and the Files are published. 
 
 ### 0.2.3
 * Readme update

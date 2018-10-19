@@ -24,7 +24,7 @@ class SermonManagerImport {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0.2.1';
+	const VERSION = '0.2.5';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -1109,7 +1109,7 @@ class SermonManagerImport {
 	 * @since 0.1.0
 	 *
 	 */
-	public function filter_title_like_posts_where( $where, &$wp_query ) {
+	public function filter_title_like_posts_where( $where, $wp_query ) {
 		global $wpdb;
 		if ( $post_title_like = $wp_query->get( 'post_title_like' ) ) {
 			$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'' .
