@@ -24,7 +24,7 @@ class SermonManagerImport {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0.2.1';
+	const VERSION = '0.2.5';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -1109,7 +1109,7 @@ class SermonManagerImport {
 	 * @since 0.1.0
 	 *
 	 */
-	public function filter_title_like_posts_where( $where, &$wp_query ) {
+	public function filter_title_like_posts_where( $where, $wp_query ) {
 		global $wpdb;
 		if ( $post_title_like = $wp_query->get( 'post_title_like' ) ) {
 			$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'' .
@@ -1118,5 +1118,52 @@ class SermonManagerImport {
 
 		return $where;
 	}
-
+						
+	/* KH CUSTOM */
+	/* Adds the abbility to call the import function from other locations outside the class.*/
+	/* With the shortcode [import_all_sermons], you have the ability to call the import-function from outside */
+	public function import_auto() {
+		// get an array of mp3 files
+		$audio_files = $this->get_audio_files( $this->folder_path );
+		// check of there are files to process
+		if ( count( $audio_files ) == 0 ) {
+			$this->set_message( 'There are no usable files in ' . $this->folder_path . '.' );
+			return;
+		}
+		$post_all = true;
+		// loop through all the files and create posts
+		if ( $post_all ) {
+			$limit = count( $audio_files );
+			$sermon_to_post = 0;
+		} 
+		// Import the sermon
+		for ( $i=$sermon_to_post; $i < $limit; $i++ ) {
+			$this->import_sermon( $audio_files[$i] );
+			$this->set_message( 'Sermons created' );
+		}
+	}	
+	/* KH CUSTOM */
+	public function call_import_function() {	
+		if ( ! class_exists( 'getID3' ) ) {
+			if ( file_exists( ABSPATH . WPINC . '/ID3/getid3.php' ) ) {
+				require ABSPATH . WPINC . '/ID3/getid3.php';
+			}
+			else {
+				require_once 'assets/getid3/getid3.php';
+			}
+		}
+			$this->import_auto();	
+	}
 }
+
+	/* Shortode [import_all_sermons] have the ability to create a page, which is opened after file import */
+	/* to automatically post the imported sermons. So that you have an automatism sermon post */
+	/* Example: Create a WP-Page URL.com/import-sermons-automatism with the shortcode [import_all_sermons] and call the URL
+	/*          with your script after pushing the new sermon in the import-Folder. */
+	if(!function_exists('import_all_sermons')){
+		function import_all_sermons() {
+			$that = SermonManagerImport::get_instance();
+			$that->call_import_function();
+		}
+	}
+	add_shortcode( 'import_all_sermons', 'import_all_sermons' );
