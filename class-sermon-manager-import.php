@@ -761,6 +761,8 @@ class SermonManagerImport {
 				add_post_meta( $post_id, 'sermon_date', $date['unix_date'], $unique = false );
 				add_post_meta( $post_id, 'bible_passage', $audio[$this->options['bible_passage']], $unique = false );
 				add_post_meta( $post_id, 'sermon_audio', $wp_file_info['url'], $unique = false );
+				add_post_meta( $post_id, '_wpfc_sermon_duration', $audio['length'], $unique = false );
+				add_post_meta( $post_ID, '_wpfc_sermon_size', $audio['size'], $unique = false );
 
 				// TODO might add support for these values somehow
 				// add_post_meta( $post_id, 'sermon_video', $meta_value, $unique = false );
